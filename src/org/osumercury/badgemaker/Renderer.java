@@ -15,9 +15,13 @@
  */
 package org.osumercury.badgemaker;
 
+import java.awt.BorderLayout;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 
 /**
  *
@@ -37,6 +41,15 @@ public abstract class Renderer {
     protected final void addProperty(String key, int type, String defaultvalue, 
                                      String description) {
         properties.add(new Property(key, type, defaultvalue, description));
+    }
+    
+    public JPanel getRendererGUIControls() {
+        JPanel pane = new JPanel();
+        JLabel lblNoGUI = new JLabel("This renderer does not have GUI controls");
+        lblNoGUI.setHorizontalAlignment(SwingConstants.CENTER);
+        pane.setLayout(new BorderLayout());
+        pane.add(lblNoGUI, BorderLayout.CENTER);
+        return pane;
     }
     
     public void setProperty(String key, String value) { }

@@ -31,12 +31,12 @@ import org.osumercury.badgemaker.renderers.*;
 public class Main {
     private static String fontName;
     private static String file;
-    private static boolean gui = false;
     private static String pngOutputDir;
     private static String jpgOutputDir;
     private static String pdf;
     private static String pdfPageSize;
     private static int pdfUnits;
+    private static boolean gui = false;
     private static float pdfPageMargin;
     private static float pdfBadgeSpacing;
     private static boolean pdfLandscape;
@@ -57,11 +57,13 @@ public class Main {
                 try {
                     switch(args[i]) {
                         case "--":
+                            gui = true;
+                        case "-i":
                             check(args, i, 1);
                             if(file == null) {
                                 file = args[++i];
                             } else {
-                                System.err.println("[E] Can only process one " +
+                                Log.err("Can only process one " +
                                                    "input file");
                                 System.exit(1);
                             }
@@ -124,43 +126,40 @@ public class Main {
                             r.setProperty(args[++i], args[++i]);
                             break;
                         case "-l":
-                            System.out.println("Renderer: " + r.getDescription());
-                            System.out.println("Valid properties:");
-                            System.out.println(pad(10, "Type") +
+                            Log.d(0, "Renderer: " + r.getDescription());
+                            Log.d(0, "Valid properties:");
+                            Log.d(0, pad(10, "Type") +
                                                pad(25, "Key") +
                                                pad(14, "Default") +
                                                " Description");
                             for(Renderer.Property p : r.getValidProperties()) {
                                 switch(p.getType()) {
                                     case Renderer.Property.FLOAT:
-                                        System.out.print(pad(12, "  FLOAT"));
+                                        Log.di(0, pad(12, "  FLOAT"));
                                         break;
                                     case Renderer.Property.INTEGER:
-                                        System.out.print(pad(12, "  INTEGER"));
+                                        Log.di(0, pad(12, "  INTEGER"));
                                         break;
                                     case Renderer.Property.STRING:
-                                        System.out.print(pad(12, "  STRING"));
+                                        Log.di(0, pad(12, "  STRING"));
                                         break;
                                     default:
-                                        System.out.print(pad(12, "  INVALID"));
+                                        Log.di(0, pad(12, "  INVALID"));
                                 }
-                                System.out.println(pad(25, p.getKey()) + " " +
+                                Log.d(0, pad(25, p.getKey()) + " " +
                                                    pad(11, p.getDefaultValue()) + "   " +
                                                    p.getDescription());
                             }
                             System.exit(0);
-                        case "--gui":
-                            gui = true;
-                            break;
                         default:
-                            System.err.println("[E] Unknown option: " +
+                            Log.err("Unknown option: " +
                                                args[i]);
                             System.err.println();
                             usage();
                             System.exit(1);
                     }
                 } catch(Exception e) {
-                    System.err.println("[E] Failed to parse option: " + 
+                    Log.err("Failed to parse option: " + 
                                        args[i]);
                     e.printStackTrace();
                     System.exit(1);
@@ -168,38 +167,31 @@ public class Main {
                 i++;
             } else if(file == null) {
                 file = args[i++];
+                gui = true;
             } else {
-                System.err.println("[E] Can only process one input file");
+                Log.err("Can only process one input file");
                 System.exit(1);
             }
         }
-        
-        if(gui && file == null) {
-            file = GUI.browseForInputFile();
-        }
-        
-        if(file != null) {
-            if(!gui && pdf == null && pngOutputDir == null) {
-                System.err.println("[E] No output was specified");
+               
+        if(!gui && file != null) {
+            if(pdf == null && pngOutputDir == null) {
+                Log.err("No output was specified");
                 System.exit(1);
             }
             
-            System.out.println("Renderer: " + r.getDescription());
+            Log.d(0, "Renderer: " + r.getDescription());
             
             if(fontName != null) {
                 r.setProperty("font", fontName);
             }
             
-            List<Badge> badges = IO.readFromCSV(r, null, file,
+            List<Badge> badges = IO.readFromCSV(null, file,
                                                 width, height,
                                                 resolution);
             if(badges == null) {
-                System.err.println("[E] No valid entries found");
+                Log.err("No valid entries found");
                 System.exit(1);
-            }
-            
-            if(gui) {
-                GUI.createMainWindow();
             }
             
             if(pdf != null) {
@@ -214,13 +206,13 @@ public class Main {
                     case "A6": pageSize = PDRectangle.A6; break;
                     case "LEGAL": pageSize = PDRectangle.LEGAL; break;
                     default:
-                        System.out.println("    Unknown paper size '" + pdfPageSize
+                        Log.d(0, "    Unknown paper size '" + pdfPageSize
                                             + "', setting PDF page size to the "
                                             + "default LETTER");
                     case "LETTER": pageSize = PDRectangle.LETTER;
                 }
                 
-                IO.generatePDF(null, pageSize,
+                IO.generatePDF(r, null, pageSize,
                                pdfPageMargin, pdfBadgeSpacing, 
                                pdfUnits, pdfLandscape,
                                preferLosslessOutput,
@@ -228,21 +220,21 @@ public class Main {
                                new File(pdf));
             }
             if(pngOutputDir != null) {
-                IO.savePNG(null, badges, pngOutputDir);
+                IO.savePNG(r, null, badges, pngOutputDir);
             }
             if(jpgOutputDir != null) {
-                IO.saveJPG(null, badges, jpgOutputDir);
+                IO.saveJPG(r, null, badges, jpgOutputDir);
             }
         } else {
-            System.err.println("[E] No input file was specified\n");
-            usage();
-            System.exit(1);
+            // gui init
+            Log.errorDialogBox = true;
+            GUI.createMainWindow(file);
         }
     }
     
     private static String[] check(String[] args, int cur, int need) {
         if(cur + need + 1 > args.length) {
-            System.err.println("[E] Invalid number of arguments for '" +
+            Log.err("Invalid number of arguments for '" +
                                args[cur] + "'");
             System.exit(1);
         }
@@ -273,8 +265,7 @@ public class Main {
                 r = new MercuryCertificateRenderer();
                 break;
             default:
-                System.err.println("Unknown renderer ID" + 
-                                   ", setting to default");
+                Log.err("Unknown renderer ID, setting to default");
             case 0:
                 r = new ClassicMercuryBadgeRenderer();
         }
@@ -294,7 +285,7 @@ public class Main {
             }
             r = (Renderer) c.newInstance();
         } catch(InstantiationException | IllegalAccessException e) {
-            System.err.println("[E] Failed to instantiate custom renderer: " +
+            Log.err("Failed to instantiate custom renderer: " +
                                e);
             System.exit(1);
         }
@@ -303,9 +294,12 @@ public class Main {
     public static void usage() {
         String help;
         help  =   "Usage:\n"
-                + "  java -jar <jar-file> [--] INPUT [RENDERER] [OPTIONS]... OUTPUT...\n"
+                + "  java -jar <jar-file> [[--] or [-i] INPUT] [RENDERER] [OPTIONS] [OUTPUTS]\n"
                 + "\n"
-                + "INPUT CSV format (use '--' prior to INPUT if file name begins with a '-'):\n"
+                + "INPUT: use '--' prior to INPUT if file name begins with a '-', use the '-i'\n"
+                + "option for non-interactive command line interface. If either INPUT is\n"
+                + "ommited *or* '-i' is ommited while INPUT is given, the GUI will start\n"
+                + "\n"
                 + "   Column 1              number (-1 if not desired)\n"
                 + "   Column 2              primary text / name\n"
                 + "   Column 3              secondary text / institution or group\n"
@@ -337,16 +331,15 @@ public class Main {
                                             Badge.DEFAULT_RESOLUTION + ")\n"
                 + "  -p                     use lossless image format when applicable\n"
                 + "\n"
-                + "OUTPUT formats (must specify at least one):\n" 
+                + "OUTPUT formats (must specify at least one if '-i' is used):\n" 
                 + "  --png DIRECTORY        output badges as PNG files\n"
                 + "  --jpg DIRECTORY        output badges as JPG files\n"
                 + "  --pdf FILENAME SIZE ORIENTATION UNITS MARGIN SPACING\n"
                 + "                         generate a PDF document with the specified format\n"
                 + "                           valid sizes: A0, ... A6, LETTER, LEGAL\n"
                 + "                           orientations: PORTRAIT, LANDSCAPE\n"
-                + "                           units: MM, INCHES\n"
-                + "  --gui                  bring up a GUI window to configure output\n";
-        System.out.println(help);
+                + "                           units: MM, INCHES\n";
+        Log.d(0, help);
     }
     
     static class CustomClassLoader extends ClassLoader {
@@ -356,9 +349,9 @@ public class Main {
                 byte[] data = Files.readAllBytes(Paths.get(path));
                 c = defineClass(name, data, 0, data.length);
             } catch(IOException ioe) {
-                System.err.println("[E] Failed to read class file " + ioe);
+                Log.err("Failed to read class file " + ioe);
             } catch(NoClassDefFoundError e) {
-                System.err.println("[E] Failed to load custom renderer class: " +
+                Log.err("Failed to load custom renderer class: " +
                                    e);
             }
             return c;

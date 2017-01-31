@@ -15,6 +15,7 @@
  */
 package org.osumercury.badgemaker.renderers;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
@@ -22,10 +23,10 @@ import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
-import org.osumercury.badgemaker.Badge;
-import org.osumercury.badgemaker.ImageTools;
-import org.osumercury.badgemaker.Main;
-import org.osumercury.badgemaker.Renderer;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+import org.osumercury.badgemaker.*;
 
 /**
  *
@@ -59,25 +60,29 @@ public class ClassicMercuryBadgeRenderer extends Renderer {
     
     @Override
     public void setProperty(String key, String value) {
-        System.out.println(Main.pad(25, key) + " " + value);
-        switch(key) {
-            case "font":
-                fontName = value;
-                break;
-            case "primary-height":
-                primaryHeight = Float.parseFloat(value);
-                break;
-            case "secondary-height":
-                secondaryHeight = Float.parseFloat(value);
-                break;
-            case "text-height-factor":
-                textHeightFactor = Float.parseFloat(value);
-                break;
-            case "font-bold":
-                fontBold = value.equals("yes");
-                break;
-            default:
-                System.err.println("Unknown property key: " + key);
+        Log.d(0, Main.pad(25, key) + " " + value);
+        try {
+            switch(key) {
+                case "font":
+                    fontName = value;
+                    break;
+                case "primary-height":
+                    primaryHeight = Float.parseFloat(value);
+                    break;
+                case "secondary-height":
+                    secondaryHeight = Float.parseFloat(value);
+                    break;
+                case "text-height-factor":
+                    textHeightFactor = Float.parseFloat(value);
+                    break;
+                case "font-bold":
+                    fontBold = value.equals("yes");
+                    break;
+                default:
+                    System.err.println("Unknown property key: " + key);
+            }
+        } catch(Exception e) {
+            Log.err("Failed to set property: " + key + ":" + value);
         }
     }
     
@@ -117,7 +122,7 @@ public class ClassicMercuryBadgeRenderer extends Renderer {
                                * badge.background.getHeight());
                     break;
             }
-            System.out.println("        Scaling background image");
+            Log.d(0, "        Scaling background image");
             background = ImageTools.scale(badge.background, bgWidth, bgHeight);
             int backgroundY;
             switch(badge.getBackgroundVerticalPosition()) {
@@ -223,5 +228,15 @@ public class ClassicMercuryBadgeRenderer extends Renderer {
                 
         g.dispose();
         return out;
+    }
+    
+    @Override
+    public JPanel getRendererGUIControls() {
+        JPanel pane = new JPanel();
+        JLabel lblNoGUI = new JLabel("Mercury Badge");
+        lblNoGUI.setHorizontalAlignment(SwingConstants.CENTER);
+        pane.setLayout(new BorderLayout());
+        pane.add(lblNoGUI, BorderLayout.CENTER);
+        return pane;
     }
 }

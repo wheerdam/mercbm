@@ -27,11 +27,10 @@ import java.util.List;
  */
 public class Badge {
     private BufferedImage unscaledImage;
-    private final Renderer r;
     private final List<String> extraData;
     public float width;
     public float proportion;
-    public int resolution;
+    public float resolution;
     public final String primaryText;
     public final String secondaryText;
     public final int number;
@@ -54,7 +53,7 @@ public class Badge {
     public static final float DEFAULT_PROPORTION = 1.25f;
     public static final int DEFAULT_RESOLUTION = 300;
     
-    public Badge(Renderer r, int number, String name, String secondary,
+    public Badge(int number, String name, String secondary,
                  BufferedImage background, String backgroundColor,
                  String textBackgroundColor, String textColor) {
         this.number = number;
@@ -64,7 +63,6 @@ public class Badge {
         this.backgroundColor = ImageTools.parseHexColor(backgroundColor);
         this.textBackgroundColor = ImageTools.parseHexColor(textBackgroundColor);
         this.textColor = ImageTools.parseHexColor(textColor);
-        this.r = r;
         backgroundScaling = BACKGROUND_FIT_WIDTH;
         width = DEFAULT_WIDTH;
         proportion = DEFAULT_PROPORTION;
@@ -121,56 +119,18 @@ public class Badge {
         return proportion * width;
     }
     
-    public int getResolution() {
+    public float getResolution() {
         return resolution;
     }
     
-    public void render() {
+    public void render(Renderer r) {
         unscaledImage = r.render(this);
     }
     
-    public BufferedImage getImage() {
+    public BufferedImage getImage(Renderer r) {
         if(unscaledImage == null) {
-            render();
+            render(r);
         }
         return unscaledImage;
-    }
-    
-    public BufferedImage getImageScaleWidth(float width) {
-        return getImageScaleWidth((int)(width*resolution));
-    }
-    
-    public BufferedImage getImageScaleHeight(float height) {
-        return getImageScaleHeight((int)(height*resolution));
-    }
-    
-    public BufferedImage getImageScaled(float width, float height) {
-        return getImageScaled((int)(width*resolution), 
-                              (int)(height*resolution));
-    }
-    
-    public BufferedImage getImageScaleWidth(int width) {
-        if(unscaledImage == null) {
-            render();
-        }
-        int newHeight = (int)((double)width/unscaledImage.getWidth() *
-                        unscaledImage.getHeight());
-        return ImageTools.scale(unscaledImage, width, newHeight);
-    }
-    
-    public BufferedImage getImageScaleHeight(int height) {
-        if(unscaledImage == null) {
-            render();
-        }
-        int newWidth = (int)((double)height/unscaledImage.getHeight() *
-                       unscaledImage.getWidth());
-        return ImageTools.scale(unscaledImage, newWidth, height);
-    }
-    
-    public BufferedImage getImageScaled(int width, int height) {
-        if(unscaledImage == null) {
-            render();
-        }
-        return ImageTools.scale(unscaledImage, width, height);
     }
 }

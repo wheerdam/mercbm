@@ -19,10 +19,12 @@ import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.io.File;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JFileChooser;
-import javax.swing.JProgressBar;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.*;
+import javax.swing.SwingUtilities;
+import org.osumercury.badgemaker.Badge;
+import org.osumercury.badgemaker.IO;
 import org.osumercury.badgemaker.Progress;
 
 /**
@@ -30,58 +32,34 @@ import org.osumercury.badgemaker.Progress;
  * @author wira
  */
 public class GUI {
-    public static Progress createProgressDialog(boolean async) {
-        JDialog progressFrame = new JDialog();
-        JProgressBar progressBar = new JProgressBar();
-        JButton cancelButton = new JButton("Cancel");
-        
-        progressFrame.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
-        progressBar.setMinimum(0);
-        progressBar.setMaximum(1000);
-        Container pane = progressFrame.getContentPane();
-        pane.add(progressBar, BorderLayout.CENTER);
-        pane.add(cancelButton, BorderLayout.PAGE_END);
-        
-        Progress p = new Progress((handle) -> {
-            if(!async) {
-                progressFrame.setTitle(handle.text);
-                progressBar.setValue((int)(handle.percent * 1000));
-                
-                if(handle.done || handle.cancel) {
-                    progressFrame.dispose();
-                }
-            }
+    public static Progress createProgressDialog(String title) {
+        ProgressDialog pD = new ProgressDialog();
+        Progress p = new Progress((callback) -> {
+            pD.update();
         });
-        
-        cancelButton.addActionListener((ActionEvent ev) -> {
-            p.cancel = true;
-            progressFrame.dispose();
-        });
-        
-        progressFrame.pack();
-        progressFrame.setSize(300, 100);
-        progressFrame.setLocationRelativeTo(null);
-        progressFrame.setVisible(true);
-        
-        if(async) {
-            (new Thread(() -> {
-                while(!p.done && !p.cancel) {
-                    progressFrame.setTitle(p.text);
-                    progressBar.setValue((int)(p.percent * 1000));
-                    try {
-                        Thread.sleep(50);
-                    } catch (InterruptedException ex) {
-
-                    }
-                }
-                progressFrame.dispose();
-            })).start();
-        }
+        pD.init(p, title);
+        pD.display();
         return p;
     }
     
-    public static void createMainWindow() {
-        
+    public static void createMainWindow(String file) {
+        MainWindow mainWindow = new MainWindow();
+        SwingUtilities.invokeLater(() -> {
+            mainWindow.init(file);
+            if(file != null) {
+                Progress p = createProgressDialog("Importing " + file);
+                List<Badge> badges = new ArrayList<>();
+                (new Thread(() -> {
+                    System.out.println("Importing...");
+                    badges.addAll(IO.readFromCSV(p, file,
+                                  Badge.DEFAULT_WIDTH,
+                                  Badge.DEFAULT_WIDTH*Badge.DEFAULT_PROPORTION,
+                                  Badge.DEFAULT_RESOLUTION));
+                })).start();
+                mainWindow.getBadgeList().addAll(badges);
+            }
+            mainWindow.setVisible(true);
+        });
     }
     
     public static String browseForInputFile() {
@@ -92,5 +70,17 @@ public class GUI {
             return fc.getSelectedFile().getAbsolutePath();
         }
         return null;
+    }
+    
+    public static boolean confirmYesNo(JFrame parent,
+                                       String message, String title) {
+        return JOptionPane.showConfirmDialog(parent, message, title,
+                JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
+    }
+    
+    public static boolean confirmOKCancel(JFrame parent,
+                                          String message, String title) {
+        return JOptionPane.showConfirmDialog(parent, message, title,
+                JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION;
     }
 }

@@ -34,10 +34,10 @@ import org.apache.commons.csv.*;
  * @author wira
  */
 public class IO {
-    public static final int UNIT_MM = 0;
-    public static final int UNIT_INCHES = 1;
+    public static final int UNIT_INCHES = 0;
+    public static final int UNIT_MM = 1;
     
-    public static void generatePDF(Progress p,
+    public static void generatePDF(Renderer r, Progress p,
                                    PDRectangle pdPageSize,
                                    float pageMargin, float badgeSpacing,
                                    int units,
@@ -55,7 +55,7 @@ public class IO {
         float spacing = (mm ? 25.4f : 1.0f) * badgeSpacing * 72.0f;
         
         if(badges.isEmpty()) {
-            System.err.println("[E] No badges to output");
+            Log.err("No badges to output");
             return;
         }
         
@@ -72,7 +72,7 @@ public class IO {
         int badgeNum = 1;
         PDPage page = null;
         PDPageContentStream pS = null;
-        System.out.println("    Generating PDF model (" + 
+        Log.d(0, "    Generating PDF model (" + 
                            String.format("%.2f", pageW) + " x " +
                            String.format("%.2f", pageH) + ") " +
                            "- " + (PNG ? "lossless images" : "JPEG images"));
@@ -80,7 +80,7 @@ public class IO {
             badgeTitle = badge.number + "-" + badge.primaryText;
             badgeW = (mm ? 25.4f : 1.0f) * badge.getWidth() * 72.0f;
             badgeH = (mm ? 25.4f : 1.0f) * badge.getHeight() * 72.0f;
-            System.out.println("      Placing " +
+            Log.d(0, "      Placing " +
                                Main.pad(25, badgeTitle) + " (" +
                                String.format("%.2f", badgeW) + " x " +
                                String.format("%.2f", badgeH) + ")");
@@ -92,10 +92,10 @@ public class IO {
                         }
                         doc.close();
                     } catch(IOException ioe) {
-                        System.err.println("[E] Failed to close document "
+                        Log.err("Failed to close document "
                                            + ioe);
                     }
-                    System.err.println("    CANCELLED");
+                    Log.d(0, "CANCELLED");
                     return;
                 }
                 p.text = "PDF: processing " + badgeTitle;
@@ -117,8 +117,8 @@ public class IO {
                             pS.close();
                         }
                     } catch(IOException ioe) {
-                        System.err.println("[E] Failed to close page content " + 
-                                           "stream: " + ioe);
+                        Log.err("Failed to close page content " + 
+                                "stream: " + ioe);
                     }
                 }
                 page = !landscape ? new PDPage(pdPageSize) :
@@ -139,7 +139,7 @@ public class IO {
                         throw new IOException();
                     }
                 } catch(IOException ioe) {
-                    System.err.println("[E] Failed to get page content stream: "
+                    Log.err("Failed to get page content stream: "
                                        + ioe);
                     if(p != null) {
                         p.done = true;
@@ -156,12 +156,12 @@ public class IO {
             try {
                 PDImageXObject img = PNG ? 
                                      LosslessFactory.
-                                     createFromImage(doc, badge.getImage())
+                                     createFromImage(doc, badge.getImage(r))
                                      : JPEGFactory.
-                                     createFromImage(doc, badge.getImage());
+                                     createFromImage(doc, badge.getImage(r));
                 largestH = badgeH > largestH ? badgeH : largestH;
                 if(offX + spacing + badgeW > limitW) {
-                    // System.out.println("    New row");
+                    // Log.d(0, "    New row");
                     offX = margin;
                     offY += largestH + spacing;
                 }
@@ -171,7 +171,7 @@ public class IO {
                 }
                 offX += badgeW;
             } catch(IOException ioe) {
-                System.err.println("[E] Failed to read image for " + badgeTitle);
+                Log.err("Failed to read image for " + badgeTitle);
             }
         }
         
@@ -180,7 +180,7 @@ public class IO {
             if(pS != null) {
                 pS.close();
             }
-            System.out.println("    Saving PDF to " + output.getAbsolutePath());
+            Log.d(0, "    Saving PDF to " + output.getAbsolutePath());
             if(p != null) {
                 p.text = "Saving to " + output.getName();
                 p.update();
@@ -188,7 +188,7 @@ public class IO {
             doc.save(output);
             doc.close();
         } catch(IOException ioe) {
-            System.err.println("[E] Failed to save to " +
+            Log.err("Failed to save to " +
                                output.getAbsolutePath() + " reason: " + ioe);
         }
         
@@ -198,7 +198,7 @@ public class IO {
         }
     }
     
-    public static void savePNG(Progress p, List<Badge> badges,
+    public static void savePNG(Renderer r, Progress p, List<Badge> badges,
                                String pngOutputDir) {
         int badgeNum = 1;
         for(Badge image : badges) {
@@ -209,7 +209,7 @@ public class IO {
                 File outFile = new File(pngOutputDir + "/" + fileName);
                 if(p != null) {
                     if(p.cancel) {
-                        System.err.println("    CANCELLED");
+                        Log.d(0, "CANCELLED");
                         return;
                     }
                     p.text = "Saving " + outFile.getName();
@@ -217,16 +217,16 @@ public class IO {
                     p.update();
                 }
                 badgeNum++;
-                System.out.println("    Saving to " + outFile.getAbsolutePath());
+                Log.d(0, "    Saving to " + outFile.getAbsolutePath());
                 if(outFile.exists() && !outFile.canWrite()) {
-                    System.err.println("[E] Unable to write to: " +
+                    Log.err("Unable to write to: " +
                                        outFile.getAbsolutePath());
                 } else {
                     outFile.createNewFile();
-                    ImageIO.write(image.getImage(), "png", outFile);
+                    ImageIO.write(image.getImage(r), "png", outFile);
                 }
             } catch(Exception e) {
-                System.err.println("[E] Failed to write " + fileName +
+                Log.err("Failed to write " + fileName +
                                    ", reason: " + e);
             }
         }
@@ -237,7 +237,7 @@ public class IO {
         }
     }
         
-    public static void saveJPG(Progress p, List<Badge> badges,
+    public static void saveJPG(Renderer r, Progress p, List<Badge> badges,
                                String jpgOutputDir) {
         int badgeNum = 1;
         for(Badge badge : badges) {
@@ -248,7 +248,7 @@ public class IO {
                 File outFile = new File(jpgOutputDir + "/" + fileName);
                 if(p != null) {
                     if(p.cancel) {
-                        System.err.println("    CANCELLED");
+                        Log.d(0, "CANCELLED");
                         return;
                     }
                     p.text = "Saving " + outFile.getName();
@@ -256,19 +256,18 @@ public class IO {
                     p.update();
                 }
                 badgeNum++;
-                System.out.println("    Saving to " + outFile.getAbsolutePath());
+                Log.d(0, "    Saving to " + outFile.getAbsolutePath());
                 if(outFile.exists() && !outFile.canWrite()) {
-                    System.err.println("[E] Unable to write to: " +
+                    Log.err("Unable to write to: " +
                                        outFile.getAbsolutePath());
                 } else {
                     outFile.createNewFile();
                     // need to convert to TYPE_INT_RGB to remove alpha channel
-                    ImageIO.write(ImageTools.discardAlphaChannel(badge.getImage()),
+                    ImageIO.write(ImageTools.discardAlphaChannel(badge.getImage(r)),
                                   "jpg", outFile);
                 }
             } catch(Exception e) {
-                System.err.println("[E] Failed to write " + fileName +
-                                   ", reason: " + e);
+                Log.err("Failed to write " + fileName + ", reason: " + e);
             }
         }
         
@@ -278,34 +277,38 @@ public class IO {
         }
     }
     
-    public static List<Badge> readFromCSV(Renderer r, Progress p,
-                                               String csvFile,
-                                               float badgeWidth,
-                                               float badgeHeight,
-                                               int resolution)
+    public static List<Badge> readFromCSV(Progress p,
+                                          String csvFile,
+                                          float badgeWidth,
+                                          float badgeHeight,
+                                          int resolution)
     {
         File parentPath = (new File(csvFile)).getParentFile();
         String imageParentPath = parentPath == null ? "." :
                                  parentPath.getAbsolutePath();
         try {
-            System.out.println("    Parsing " + csvFile);
-            return parseCSV(r, p, 
+            Log.d(0, "    Parsing " + csvFile);
+            return parseCSV(p, 
                             new String(Files.readAllBytes(Paths.get(csvFile)),
                                        StandardCharsets.UTF_8),
                             imageParentPath, badgeWidth, badgeHeight,
                             resolution);
         } catch(IOException ioe) {
-            System.err.println("[E] Failed to parse " + csvFile);
+            Log.err("Failed to parse " + csvFile);
+        }
+        if(p != null) {
+            p.done = true;
+            p.update();
         }
         return null;
     }
     
-    public static List<Badge> parseCSV(Renderer r, Progress p,
-                                            String csvString,
-                                            String imageParentPath,
-                                            float badgeWidth,
-                                            float badgeHeight,
-                                            int resolution)
+    public static List<Badge> parseCSV(Progress p,
+                                       String csvString,
+                                       String imageParentPath,
+                                       float badgeWidth,
+                                       float badgeHeight,
+                                       int resolution)
     {
         List<Badge> badgeImages = new ArrayList<>();
         try {
@@ -316,7 +319,7 @@ public class IO {
             for(CSVRecord record : records) {
                 if(p != null) {
                     if(p.cancel) {
-                        System.err.println("    CANCELLED");
+                        Log.d(0, "CANCELLED");
                         return badgeImages;
                     }
                     p.text = "Parsing record #" + recordNum;
@@ -332,17 +335,16 @@ public class IO {
                         try {
                             imageFilePath = new File(imageParentPath
                                     + "/" + record.get(3).trim());
-                            System.out.println("      loading " +
+                            Log.d(0, "      loading " +
                                                imageFilePath.getAbsolutePath());
                             background = ImageIO.read(imageFilePath);
                         } catch(IOException ioe) {
-                            System.err.println("[E] Failed to load image " + 
-                                                "(line " + recordNum + "): " +
-                                                imageFilePath.getAbsolutePath());
+                            Log.err("Failed to load image " + 
+                                    "(line " + recordNum + "): " +
+                                    imageFilePath.getAbsolutePath());
                         }
                     }
                     Badge img = new Badge(
-                            r,
                             Integer.parseInt(record.get(0)), // number
                             record.get(1),                   // primary text
                             record.get(2),                   // secondary text
@@ -369,13 +371,13 @@ public class IO {
                     img.setResolution(resolution);
                     badgeImages.add(img);
                 } catch(Exception e) {
-                    System.err.println("[E] Failed to parse record " + 
-                                       recordNum + ": " + e);
+                    Log.err("Failed to parse record " + 
+                            recordNum + ": " + e);
                 }
                 recordNum++;
             }
         } catch(Exception e) {
-            System.err.println("[E] Error reading input file: " + e);
+            Log.err("Error reading input file: " + e);
         }
         if(p != null) {
             p.done = true;

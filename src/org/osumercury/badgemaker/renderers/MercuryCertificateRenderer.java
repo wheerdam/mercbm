@@ -20,6 +20,9 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 import org.osumercury.badgemaker.*;
 
 /**
@@ -111,13 +114,15 @@ public class MercuryCertificateRenderer extends Renderer {
                     "vertical spacing between text in proportion to the page height");
         addProperty("minor-spacing", Property.FLOAT, String.format("%.3f", minorSpacing),
                     "minor vertical spacing between text in proportion to the page height");
+        addProperty("font-size-initial", Property.INTEGER, "" + originalFontSize,
+                    "initial full resolution font size");
 
     }
     
     @Override
     public void setProperty(String key, String value) {
         try {
-            System.out.println(Main.pad(25, key) + " " + value);
+            Log.d(0, Main.pad(25, key) + " " + value);
             switch(key) {
                 case "font":                font = value; break;
                 case "certification":       textCertification = value; break;
@@ -146,11 +151,12 @@ public class MercuryCertificateRenderer extends Renderer {
                 case "logo-height":         logoHeight = Float.parseFloat(value); break;
                 case "major-spacing":       majorSpacing = Float.parseFloat(value); break;
                 case "minor-spacing":       minorSpacing = Float.parseFloat(value); break;
+                case "font-size-initial":   originalFontSize = Integer.parseInt(value); break;
                 default:
-                    System.err.println("Unknown property key: " + key);
+                    Log.err("Unknown property key: " + key);
             }
         } catch(Exception e) {
-            System.err.println("Failed to set property: " + key + ":" + value);
+            Log.err("Failed to set property: " + key + ":" + value);
         }
     }
 
@@ -171,7 +177,7 @@ public class MercuryCertificateRenderer extends Renderer {
             try{
                 background = ImageIO.read(new File(pathToBackground));
             } catch(IOException ioe) {
-                System.err.println("[E] Failed to load " + pathToLogo);
+                Log.err("Failed to load " + pathToLogo);
             }
         }
         
@@ -187,7 +193,7 @@ public class MercuryCertificateRenderer extends Renderer {
             try{
                 logo = ImageIO.read(new File(pathToLogo));
             } catch(IOException ioe) {
-                System.err.println("[E] Failed to load " + pathToLogo);
+                Log.err("Failed to load " + pathToLogo);
             }
         }
         
@@ -470,6 +476,16 @@ public class MercuryCertificateRenderer extends Renderer {
         
         g.dispose();
         return img;
+    }
+    
+    @Override
+    public JPanel getRendererGUIControls() {
+        JPanel pane = new JPanel();
+        JLabel lblNoGUI = new JLabel("Mercury Certificate");
+        lblNoGUI.setHorizontalAlignment(SwingConstants.CENTER);
+        pane.setLayout(new BorderLayout());
+        pane.add(lblNoGUI, BorderLayout.CENTER);
+        return pane;
     }
 
     @Override
