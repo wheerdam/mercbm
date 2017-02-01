@@ -15,9 +15,6 @@
  */
 package org.osumercury.badgemaker.gui;
 
-import java.awt.BorderLayout;
-import java.awt.Container;
-import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,22 +29,12 @@ import org.osumercury.badgemaker.Progress;
  * @author wira
  */
 public class GUI {
-    public static Progress createProgressDialog(String title) {
-        ProgressDialog pD = new ProgressDialog();
-        Progress p = new Progress((callback) -> {
-            pD.update();
-        });
-        pD.init(p, title);
-        pD.display();
-        return p;
-    }
-    
     public static void createMainWindow(String file) {
         MainWindow mainWindow = new MainWindow();
         SwingUtilities.invokeLater(() -> {
-            mainWindow.init(file);
+            mainWindow.init();
             if(file != null) {
-                Progress p = createProgressDialog("Importing " + file);
+                Progress p = ProgressDialog.create("Importing " + file);
                 List<Badge> badges = new ArrayList<>();
                 (new Thread(() -> {
                     System.out.println("Importing...");
@@ -55,8 +42,9 @@ public class GUI {
                                   Badge.DEFAULT_WIDTH,
                                   Badge.DEFAULT_WIDTH*Badge.DEFAULT_PROPORTION,
                                   Badge.DEFAULT_RESOLUTION));
+                    mainWindow.getBadgeList().addAll(badges);
+                    mainWindow.populateInputTable();
                 })).start();
-                mainWindow.getBadgeList().addAll(badges);
             }
             mainWindow.setVisible(true);
         });
@@ -65,7 +53,18 @@ public class GUI {
     public static String browseForInputFile() {
         JFileChooser fc = new JFileChooser();
         fc.setCurrentDirectory(new File("."));
-        fc.setDialogTitle("Open input file");
+        fc.setDialogTitle("Select Input File");
+        if(fc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+            return fc.getSelectedFile().getAbsolutePath();
+        }
+        return null;
+    }
+    
+    public static String browseForDirectory() {
+        JFileChooser fc = new JFileChooser();
+        fc.setCurrentDirectory(new File("."));
+        fc.setDialogTitle("Select Directory");
+        fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         if(fc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
             return fc.getSelectedFile().getAbsolutePath();
         }
@@ -82,5 +81,11 @@ public class GUI {
                                           String message, String title) {
         return JOptionPane.showConfirmDialog(parent, message, title,
                 JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION;
+    }
+    
+    public static void showMessage(JFrame parent, 
+                                   String message, String title) {
+        JOptionPane.showMessageDialog(parent, message, title,
+                                      JOptionPane.INFORMATION_MESSAGE);
     }
 }

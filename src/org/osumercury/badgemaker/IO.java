@@ -95,6 +95,8 @@ public class IO {
                         Log.err("Failed to close document "
                                            + ioe);
                     }
+                    p.done = true;
+                    p.update();
                     Log.d(0, "CANCELLED");
                     return;
                 }
@@ -201,14 +203,16 @@ public class IO {
     public static void savePNG(Renderer r, Progress p, List<Badge> badges,
                                String pngOutputDir) {
         int badgeNum = 1;
-        for(Badge image : badges) {
+        for(Badge badge : badges) {
             String fileName = null;
             try {
-                fileName = image.number + "-" + 
-                           image.primaryText + ".png";
+                fileName = badge.number + "-" + 
+                           badge.primaryText + ".png";
                 File outFile = new File(pngOutputDir + "/" + fileName);
                 if(p != null) {
                     if(p.cancel) {
+                        p.done = true;
+                        p.update();
                         Log.d(0, "CANCELLED");
                         return;
                     }
@@ -223,7 +227,7 @@ public class IO {
                                        outFile.getAbsolutePath());
                 } else {
                     outFile.createNewFile();
-                    ImageIO.write(image.getImage(r), "png", outFile);
+                    ImageIO.write(badge.getImage(r), "png", outFile);
                 }
             } catch(Exception e) {
                 Log.err("Failed to write " + fileName +
@@ -248,6 +252,8 @@ public class IO {
                 File outFile = new File(jpgOutputDir + "/" + fileName);
                 if(p != null) {
                     if(p.cancel) {
+                        p.done = true;
+                        p.update();
                         Log.d(0, "CANCELLED");
                         return;
                     }
@@ -291,8 +297,8 @@ public class IO {
             return parseCSV(p, 
                             new String(Files.readAllBytes(Paths.get(csvFile)),
                                        StandardCharsets.UTF_8),
-                            imageParentPath, badgeWidth, badgeHeight,
-                            resolution);
+                                       imageParentPath, badgeWidth, badgeHeight,
+                                       resolution);
         } catch(IOException ioe) {
             Log.err("Failed to parse " + csvFile);
         }
@@ -310,19 +316,24 @@ public class IO {
                                        float badgeHeight,
                                        int resolution)
     {
-        List<Badge> badgeImages = new ArrayList<>();
+        List<Badge> badges = new ArrayList<>();
         try {
             File imageFilePath = null;
-            CSVParser records = CSVParser.parse(csvString, CSVFormat.DEFAULT);
+            CSVParser parser = CSVParser.parse(csvString, CSVFormat.DEFAULT);
+            List<CSVRecord> records = parser.getRecords();
             BufferedImage background;
             int recordNum = 1;
             for(CSVRecord record : records) {
                 if(p != null) {
                     if(p.cancel) {
+                        p.done = true;
+                        p.update();
                         Log.d(0, "CANCELLED");
-                        return badgeImages;
+                        return badges;
                     }
-                    p.text = "Parsing record #" + recordNum;
+                    p.text = "Parsing record #" + recordNum + " of " +
+                              records.size();
+                    p.percent = (float)recordNum / records.size();
                     p.update();
                 }
                 try {
@@ -348,7 +359,7 @@ public class IO {
                             Integer.parseInt(record.get(0)), // number
                             record.get(1),                   // primary text
                             record.get(2),                   // secondary text
-                            background,                      // background image
+                            background,
                             record.get(4),                   // background color
                             record.get(5),                   // text background color
                             record.get(6)                    // text color
@@ -369,10 +380,15 @@ public class IO {
                     img.setWidth(badgeWidth);
                     img.setProportion(badgeHeight / badgeWidth);
                     img.setResolution(resolution);
-                    badgeImages.add(img);
+                    badges.add(img);
                 } catch(Exception e) {
                     Log.err("Failed to parse record " + 
                             recordNum + ": " + e);
+                    if(p != null) {
+                        p.done = true;
+                        p.update();
+                    }
+                    return badges;
                 }
                 recordNum++;
             }
@@ -383,6 +399,6 @@ public class IO {
             p.done = true;
             p.update();
         }
-        return badgeImages;
+        return badges;
     }    
 }

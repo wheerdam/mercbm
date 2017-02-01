@@ -16,6 +16,7 @@
 package org.osumercury.badgemaker.renderers;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
@@ -33,7 +34,8 @@ import org.osumercury.badgemaker.*;
  * @author wira
  */
 public class ClassicMercuryBadgeRenderer extends Renderer {
-    private String fontName = Font.SANS_SERIF;
+    private String font = Font.SANS_SERIF;
+    private int originalFontSize = 200;
     private boolean fontBold = false;
     private float primaryHeight = 0.15f;
     private float secondaryHeight = 0.15f;
@@ -64,7 +66,7 @@ public class ClassicMercuryBadgeRenderer extends Renderer {
         try {
             switch(key) {
                 case "font":
-                    fontName = value;
+                    font = value;
                     break;
                 case "primary-height":
                     primaryHeight = Float.parseFloat(value);
@@ -153,19 +155,100 @@ public class ClassicMercuryBadgeRenderer extends Renderer {
         p.addPoint((int)(1.00 * d.width),   (int) (1.00 * d.height));
         p.addPoint((int)(1.00 * d.width),   (int) ((1-secondaryHeight) * d.height));
         g.fillPolygon(p);
-        Font primaryFont, secondaryFont, numberFont;
         FontMetrics fm;
-        int textX, textY, textW, textH, limitW, limitH;
-        int secondaryTextOffset = 0;
+        int textX, textY, textW, textH, limitW, numberW;
         
+        BufferedImage imgNumber;
+        BufferedImage imgPrimaryText;
+        BufferedImage imgSecondaryText;
+        
+        String fNumber = String.format("%02d", badge.number);
+        Font f = new Font(font, fontBold ? Font.BOLD : Font.PLAIN,
+                          originalFontSize);
+        Graphics2D gg;
+        fm = g.getFontMetrics(f);
+        
+        imgNumber = null;
+        numberW = 0;
+        if(badge.number > -1) {
+            imgNumber = new BufferedImage(fm.stringWidth(fNumber),
+                                          fm.getHeight(),
+                                          BufferedImage.TYPE_INT_ARGB);
+            gg = imgNumber.createGraphics();
+            gg.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                                RenderingHints.VALUE_ANTIALIAS_ON);
+            gg.setColor(badge.textColor);
+            gg.setFont(f);
+            gg.drawString(fNumber, 0, fm.getHeight()-fm.getDescent());
+            gg.dispose();
+            textH = (int)(primaryHeight * d.height);
+            numberW = (int)((float)textH / imgNumber.getHeight() *
+                          imgNumber.getWidth());
+            g.drawImage(ImageTools.scale(imgNumber, numberW, textH), 
+                        (int)(0.02f * d.width), 0, null);
+        }
+        
+        imgPrimaryText = new BufferedImage(fm.stringWidth(badge.primaryText),
+                                           fm.getHeight(),
+                                           BufferedImage.TYPE_INT_ARGB);
+        gg = imgPrimaryText.createGraphics();
+        gg.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                            RenderingHints.VALUE_ANTIALIAS_ON);
+        gg.setColor(badge.textColor);
+        gg.setFont(f);
+        gg.drawString(badge.primaryText, 0, fm.getHeight()-fm.getDescent());
+        gg.dispose();
+        textH = (int)(primaryHeight * d.height);
+        textW = (int)((float)textH / imgPrimaryText.getHeight() *
+                      imgPrimaryText.getWidth());
+        limitW = d.width - (int)(0.08f * d.width);
+        if(textW > limitW) {
+            textW = limitW;
+            textH = (int)((float)textW / imgPrimaryText.getWidth() *
+                          imgPrimaryText.getHeight());
+        }
+        textX = (int)(d.width / 2.0f - textW / 2.0f);        
+        textY = d.height - textH - (int)(primaryHeight * d.height - textH) / 2;        
+        g.drawImage(ImageTools.scale(imgPrimaryText, textW, textH), 
+                    textX, textY, null);
+        
+        imgSecondaryText = new BufferedImage(fm.stringWidth(badge.secondaryText),
+                                             fm.getHeight(),
+                                             BufferedImage.TYPE_INT_ARGB);
+        gg = imgSecondaryText.createGraphics();
+        gg.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                            RenderingHints.VALUE_ANTIALIAS_ON);
+        gg.setColor(badge.textColor);
+        gg.setFont(f);
+        gg.drawString(badge.secondaryText, 0, fm.getHeight()-fm.getDescent());
+        gg.dispose();
+        textH = (int)(secondaryHeight * d.height);
+        textW = (int)((float)textH / imgSecondaryText.getHeight() *
+                      imgSecondaryText.getWidth());
+        limitW = d.width - (imgNumber != null ? numberW : 0)
+                 - (int)(0.25f * d.width);
+        if(textW > limitW) {
+            textW = limitW;
+            textH = (int)((float)textW / imgSecondaryText.getWidth() *
+                          imgSecondaryText.getHeight());
+        }
+        textX = (imgNumber != null ? numberW : 0)
+                + (int)(0.06f * d.width);
+        textY = (int)(secondaryHeight * d.height / 2 - textH / 2.0f);
+        if(textY < 0) {
+            textY = 0;
+        }
+        g.drawImage(ImageTools.scale(imgSecondaryText, textW, textH), 
+                    textX, textY, null);
+        /*
         if(badge.number > -1) {
             int numberFontSize = 0;
-            String fNumber = String.format("%02d", badge.number);
+            
             limitH = (int)(primaryHeight * d.height);
             limitW = (int)(0.25 * d.width);
             do {
                 numberFontSize++;
-                numberFont = new Font(fontName,
+                numberFont = new Font(font,
                                       fontBold ? Font.BOLD : Font.PLAIN,
                                       numberFontSize);
                 fm = g.getFontMetrics(numberFont);
@@ -190,7 +273,7 @@ public class ClassicMercuryBadgeRenderer extends Renderer {
         limitW = (int)(0.94 * d.width);
         do {
             primaryFontSize++;
-            primaryFont = new Font(fontName,
+            primaryFont = new Font(font,
                                    fontBold ? Font.BOLD : Font.PLAIN,
                                    primaryFontSize);
             fm = g.getFontMetrics(primaryFont);
@@ -212,7 +295,7 @@ public class ClassicMercuryBadgeRenderer extends Renderer {
         limitW = (int)(0.80 * d.width) - secondaryTextOffset;
         do {
             secondaryFontSize++;
-            secondaryFont = new Font(fontName,
+            secondaryFont = new Font(font,
                                      fontBold ? Font.BOLD : Font.PLAIN,
                                      secondaryFontSize);
             fm = g.getFontMetrics(secondaryFont);
@@ -225,6 +308,7 @@ public class ClassicMercuryBadgeRenderer extends Renderer {
                 + textH - (int)(textHeightFactor * fm.getDescent());
         g.setFont(secondaryFont);
         g.drawString(badge.secondaryText, textX, textY);         
+        */
                 
         g.dispose();
         return out;

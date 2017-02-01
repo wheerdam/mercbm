@@ -17,10 +17,14 @@ package org.osumercury.badgemaker.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
 import org.osumercury.badgemaker.Progress;
@@ -34,28 +38,47 @@ public class ProgressDialog extends JDialog {
     private JLabel text;
     private JProgressBar progressBar;
     private JButton btnCancel;
+    private JPanel paneControls;
     private boolean initialized = false;
+    
+    public static Progress create(String title) {
+        ProgressDialog pD = new ProgressDialog();
+        Progress p = new Progress((callback) -> {
+            pD.update();
+        });
+        pD.init(p, title);
+        pD.display();
+        return p;
+    }
 
     public void init(Progress p, String title) {
         this.p = p;
         progressBar = new JProgressBar();
         btnCancel = new JButton("Cancel");
+        paneControls = new JPanel();
         text = new JLabel(" ");
+        text.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         setModal(true);
         setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
         progressBar.setMinimum(0);
         progressBar.setMaximum(1000);
         Container pane = this.getContentPane();
         pane.add(text, BorderLayout.PAGE_START);
+        pane.add(Box.createRigidArea(new Dimension(5, 5)), 
+                 BorderLayout.LINE_START);
+        pane.add(Box.createRigidArea(new Dimension(5, 5)), 
+                 BorderLayout.LINE_END);
         pane.add(progressBar, BorderLayout.CENTER);
-        pane.add(btnCancel, BorderLayout.PAGE_END);        
+        paneControls.add(btnCancel);
+        pane.add(paneControls, BorderLayout.PAGE_END);        
 
         btnCancel.addActionListener((ActionEvent ev) -> {
+            text.setText("Cancelling...");
             p.cancel = true;
-            this.dispose();
         });
 
         pack();
+        setTitle(title);
         setSize(300, 100);
         setLocationRelativeTo(null);
         initialized = true;
@@ -76,9 +99,11 @@ public class ProgressDialog extends JDialog {
             return;
         }
         SwingUtilities.invokeLater(() -> {
-            text.setText(p.text);
-            progressBar.setValue((int)(p.percent * 1000));
-            if(p.done || p.cancel) {
+            if(!p.cancel) {
+                text.setText(p.text);
+                progressBar.setValue((int)(p.percent * 1000));
+            }
+            if(p.done) {
                 dispose();
             }
         });

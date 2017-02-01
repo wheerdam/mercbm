@@ -72,14 +72,20 @@ public class Badge {
     
     public void setProportion(float f) {
         this.proportion = f;
+        // reset image
+        unscaledImage = null;
     }
     
     public void setResolution(int v) {
         this.resolution = v;
+        // reset image
+        unscaledImage = null;
     }
     
     public void setWidth(float f) {
         this.width = f;
+        // reset image
+        unscaledImage = null;
     }    
     
     public Dimension getPixelDimension() {
