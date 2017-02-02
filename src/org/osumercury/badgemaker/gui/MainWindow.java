@@ -88,16 +88,6 @@ public class MainWindow extends JFrame {
     private JButton btnPDFBrowse;
     private JButton btnPDFSave;
     
-    private JTextField txtOutputPNGFile;
-    private JButton btnOutputPNGBrowse;
-    private JButton btnOutputPNGSave;
-    private JLabel lblOutputPNG;
-    
-    private JTextField txtOutputJPGFile;
-    private JButton btnOutputJPGBrowse;
-    private JButton btnOutputJPGSave;
-    private JLabel lblOutputJPG;
-    
     public void init() {
         // use default
         r0 = new ClassicMercuryBadgeRenderer();
@@ -116,7 +106,6 @@ public class MainWindow extends JFrame {
         paneRenderer = new JPanel();
         paneRenderer.setName("Format");
         paneOutput = new JPanel();
-        paneOutput.setLayout(new BoxLayout(paneOutput, BoxLayout.Y_AXIS));
         paneOutput.setName("Output");
         tabs.add(paneInput);
         tabs.add(paneRenderer);
@@ -183,6 +172,7 @@ public class MainWindow extends JFrame {
         lblImageSize = new JLabel();
         updateImageSizeLabel();
         btnChangeImageSize = new JButton("Change Size");
+        btnChangeImageSize.addActionListener(e -> { changeSize(); });
         cmbUnits = new JComboBox();
         cmbUnits.addItem("Inches");
         cmbUnits.addItem("Millimeters");
@@ -196,7 +186,13 @@ public class MainWindow extends JFrame {
         paneRenderer.add(paneRendererControls, BorderLayout.PAGE_END);
         paneRenderer.add(paneImageSizeControls, BorderLayout.PAGE_START);
         
-        paneOutputPNG = new TextInputPane("PNG Output Directory: ", 
+        paneOutput.setLayout(new BoxLayout(paneOutput, BoxLayout.Y_AXIS));
+        paneOutputHalf = new JPanel();
+        paneOutputHalf.setLayout(new BoxLayout(paneOutputHalf, 
+                                 BoxLayout.Y_AXIS));
+        paneOutputPNG = new TextInputPane("PNG Output Directory: ", 200,
+                                          "Browse", "Save");
+        paneOutputJPG = new TextInputPane("JPG Output Directory: ", 200,
                                           "Browse", "Save");
         paneOutputPNG.addAction(0, e -> {
             String path = GUI.browseForDirectory();
@@ -208,9 +204,6 @@ public class MainWindow extends JFrame {
             savePNG(paneOutputPNG.getText());
         });
         paneOutputPNG.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
-        
-        paneOutputJPG = new TextInputPane("JPG Output Directory: ", 
-                                          "Browse", "Save");
         paneOutputJPG.addAction(0, e -> {
             String path = GUI.browseForDirectory();
             if(path != null) {
@@ -222,9 +215,6 @@ public class MainWindow extends JFrame {
         });
         paneOutputJPG.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
         
-        paneOutputHalf = new JPanel();
-        paneOutputHalf.setLayout(new BoxLayout(paneOutputHalf, 
-                                 BoxLayout.Y_AXIS));
         paneOutputHalf.add(paneOutputPNG);
         paneOutputHalf.add(Box.createRigidArea(new Dimension(5, 5)));
         paneOutputHalf.add(paneOutputJPG);
@@ -349,7 +339,7 @@ public class MainWindow extends JFrame {
     }
     
     private void importCSV() {
-        String file = GUI.browseForInputFile();       
+        String file = GUI.browseForInputFile("Select File to Import");       
         if(file != null) {
             Progress p = ProgressDialog.create("Importing " + file);
             (new Thread(() -> {
@@ -405,6 +395,16 @@ public class MainWindow extends JFrame {
         paneRenderPreview.validate();
     }
     
+    private void changeSize() {
+        float[] ret = ChangeSizeForm.create(this, width, height, dpi);
+        if(ret != null) {
+            width = ret[0];
+            height = ret[1];
+            dpi = ret[2];
+            updateImageSizeLabel();
+        }
+    }
+    
     private void unitsChanged() {
         int oldUnits = units;
         units = cmbUnits.getSelectedIndex() == 0 ? IO.UNIT_INCHES :
@@ -423,7 +423,7 @@ public class MainWindow extends JFrame {
     
     private void addBadge(Badge oldValues) {
         int index = tblInput.getSelectedRow();
-        Badge badge = BadgeDataEditorForm.create(oldValues);
+        Badge badge = BadgeDataEditorForm.create(this, oldValues);
         if(badge != null) {
             if(oldValues != null && index >= 0) {
                 badges.remove(index);

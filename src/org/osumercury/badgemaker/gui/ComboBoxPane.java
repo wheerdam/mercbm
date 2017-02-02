@@ -15,25 +15,34 @@
  */
 package org.osumercury.badgemaker.gui;
 
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionListener;
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 /**
  *
  * @author wira
  */
-public class TextInputPane extends JPanel {
-    private final JTextField text;
+public class ComboBoxPane extends JPanel {
+    private final JComboBox<String> combo;
     private final JLabel label;
     private final JButton[] buttons;
     
-    public TextInputPane(String labelText, int labelWidth,
-                         String...buttonTitles) {
+    public ComboBoxPane(String labelText, String[] items, int labelWidth,
+                        String...buttonTitles) {
         this.setLayout(new GridBagLayout());
         buttons = new JButton[buttonTitles.length];
         label = new JLabel(labelText);
-        text = new JTextField();
+        combo = new JComboBox();
+        for(String item : items) {
+            combo.addItem(item);
+        }
         GridBagConstraints c = new GridBagConstraints();
         Dimension max;
         int i;
@@ -48,7 +57,7 @@ public class TextInputPane extends JPanel {
         add(label, c);
         c.gridx = 1;
         c.weightx = 1.0;
-        add(text, c);
+        add(combo, c);
         c.weighty = 1.0;
         c.weightx = 0.0;
         for(i = 0; i < buttons.length; i++) {
@@ -59,18 +68,18 @@ public class TextInputPane extends JPanel {
     }
     
     public String getText() {
-        return text.getText();
+        return (String) combo.getSelectedItem();
     }
     
-    public void setText(String v) {
-        text.setText(v);
+    public int getSelectedIndex() {
+        return combo.getSelectedIndex();
     }
     
-    public JTextField getTextField() {
-        return text;
+    public JComboBox getComboBox() {
+        return combo;
     }
     
     public void addAction(int buttonIndex, ActionListener a) {
         buttons[buttonIndex].addActionListener(a);
-    }
+    }    
 }

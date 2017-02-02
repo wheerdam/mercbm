@@ -50,10 +50,10 @@ public class GUI {
         });
     }
     
-    public static String browseForInputFile() {
+    public static String browseForInputFile(String title) {
         JFileChooser fc = new JFileChooser();
         fc.setCurrentDirectory(new File("."));
-        fc.setDialogTitle("Select Input File");
+        fc.setDialogTitle(title);
         if(fc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
             return fc.getSelectedFile().getAbsolutePath();
         }

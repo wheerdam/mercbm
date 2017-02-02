@@ -16,7 +16,6 @@
 package org.osumercury.badgemaker.renderers;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
@@ -212,103 +211,36 @@ public class ClassicMercuryBadgeRenderer extends Renderer {
         g.drawImage(ImageTools.scale(imgPrimaryText, textW, textH), 
                     textX, textY, null);
         
-        imgSecondaryText = new BufferedImage(fm.stringWidth(badge.secondaryText),
-                                             fm.getHeight(),
-                                             BufferedImage.TYPE_INT_ARGB);
-        gg = imgSecondaryText.createGraphics();
-        gg.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                            RenderingHints.VALUE_ANTIALIAS_ON);
-        gg.setColor(badge.textColor);
-        gg.setFont(f);
-        gg.drawString(badge.secondaryText, 0, fm.getHeight()-fm.getDescent());
-        gg.dispose();
-        textH = (int)(secondaryHeight * d.height);
-        textW = (int)((float)textH / imgSecondaryText.getHeight() *
-                      imgSecondaryText.getWidth());
-        limitW = d.width - (imgNumber != null ? numberW : 0)
-                 - (int)(0.25f * d.width);
-        if(textW > limitW) {
-            textW = limitW;
-            textH = (int)((float)textW / imgSecondaryText.getWidth() *
-                          imgSecondaryText.getHeight());
+        if(!badge.secondaryText.equals("")) {
+            imgSecondaryText = new BufferedImage(fm.stringWidth(badge.secondaryText),
+                                                 fm.getHeight(),
+                                                 BufferedImage.TYPE_INT_ARGB);
+            gg = imgSecondaryText.createGraphics();
+            gg.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                                RenderingHints.VALUE_ANTIALIAS_ON);
+            gg.setColor(badge.textColor);
+            gg.setFont(f);
+            gg.drawString(badge.secondaryText, 0, fm.getHeight()-fm.getDescent());
+            gg.dispose();
+            textH = (int)(secondaryHeight * d.height);
+            textW = (int)((float)textH / imgSecondaryText.getHeight() *
+                          imgSecondaryText.getWidth());
+            limitW = d.width - (imgNumber != null ? numberW : 0)
+                     - (int)(0.25f * d.width);
+            if(textW > limitW) {
+                textW = limitW;
+                textH = (int)((float)textW / imgSecondaryText.getWidth() *
+                              imgSecondaryText.getHeight());
+            }
+            textX = (imgNumber != null ? numberW : 0)
+                    + (int)(0.06f * d.width);
+            textY = (int)(secondaryHeight * d.height / 2 - textH / 2.0f);
+            if(textY < 0) {
+                textY = 0;
+            }
+            g.drawImage(ImageTools.scale(imgSecondaryText, textW, textH), 
+                        textX, textY, null);
         }
-        textX = (imgNumber != null ? numberW : 0)
-                + (int)(0.06f * d.width);
-        textY = (int)(secondaryHeight * d.height / 2 - textH / 2.0f);
-        if(textY < 0) {
-            textY = 0;
-        }
-        g.drawImage(ImageTools.scale(imgSecondaryText, textW, textH), 
-                    textX, textY, null);
-        /*
-        if(badge.number > -1) {
-            int numberFontSize = 0;
-            
-            limitH = (int)(primaryHeight * d.height);
-            limitW = (int)(0.25 * d.width);
-            do {
-                numberFontSize++;
-                numberFont = new Font(font,
-                                      fontBold ? Font.BOLD : Font.PLAIN,
-                                      numberFontSize);
-                fm = g.getFontMetrics(numberFont);
-                textW = fm.stringWidth(fNumber);
-                textH = (int)(textHeightFactor * fm.getHeight());
-            } while(textH < limitH &&
-                    textW < limitW);
-
-            textX = (int)(0.03 * d.width);
-            textY = (limitH - textH)/2
-                    + textH - (int)(textHeightFactor * fm.getDescent());
-
-            g.setFont(numberFont);
-            g.setColor(badge.textColor);
-            g.drawString(fNumber, textX, textY);
-            secondaryTextOffset += textX + fm.stringWidth(fNumber)
-                                + (int)(0.02 * d.width);
-        }
-        
-        int primaryFontSize = 0;
-        limitH = (int)(primaryHeight * d.height);
-        limitW = (int)(0.94 * d.width);
-        do {
-            primaryFontSize++;
-            primaryFont = new Font(font,
-                                   fontBold ? Font.BOLD : Font.PLAIN,
-                                   primaryFontSize);
-            fm = g.getFontMetrics(primaryFont);
-            textW = fm.stringWidth(badge.primaryText);
-            textH = (int)(textHeightFactor * fm.getHeight());
-        } while(textH < limitH && 
-                textW < limitW);
-        
-        g.setColor(badge.textColor);
-        textX = (int)(0.03 * d.width);
-        textY = (int)((1.00 - primaryHeight) * d.height)
-                + (limitH - textH)/2
-                + textH - (int)(textHeightFactor * fm.getDescent());
-        g.setFont(primaryFont);
-        g.drawString(badge.primaryText, textX, textY);
-        
-        int secondaryFontSize = 0;
-        limitH = (int)(secondaryHeight * d.height);
-        limitW = (int)(0.80 * d.width) - secondaryTextOffset;
-        do {
-            secondaryFontSize++;
-            secondaryFont = new Font(font,
-                                     fontBold ? Font.BOLD : Font.PLAIN,
-                                     secondaryFontSize);
-            fm = g.getFontMetrics(secondaryFont);
-            textW = fm.stringWidth(badge.secondaryText);
-            textH = (int)(textHeightFactor * fm.getHeight());
-        } while(textH < limitH &&
-                textW < limitW);        
-        textX = secondaryTextOffset + (int)(0.02 * d.width);
-        textY = (limitH - textH)/2
-                + textH - (int)(textHeightFactor * fm.getDescent());
-        g.setFont(secondaryFont);
-        g.drawString(badge.secondaryText, textX, textY);         
-        */
                 
         g.dispose();
         return out;
