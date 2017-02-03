@@ -335,7 +335,7 @@ public class IO {
                 printer.printRecord(fields);
                 if(badge.background != null) {
                     ImageIO.write(badge.background, "png",
-                                  new File(name + ".png"));
+                                  new File(imageParentPath + "/" + name + ".png"));
                 }
             }
         } catch(Exception e) {
