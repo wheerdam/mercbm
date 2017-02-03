@@ -54,12 +54,6 @@ public class BadgeDataEditorForm extends JDialog {
     private JLabel lblTextColor;
     private JLabel lblBackground;
     
-    private JTextField txtNumber;
-    private JTextField txtName;
-    private JTextField txtInstitution;
-    
-    private JComboBox cmbBackgroundFit;
-    
     public static Badge create(JFrame parent, Badge defaultValues) {
         BadgeDataEditorForm form = new BadgeDataEditorForm();
         form.init(parent, defaultValues);
@@ -67,7 +61,6 @@ public class BadgeDataEditorForm extends JDialog {
     }
     
     public void init(JFrame parent, Badge badge) {
-        Dimension min, pref, max;
         Container contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());
         paneMain = new JPanel();
@@ -267,7 +260,7 @@ public class BadgeDataEditorForm extends JDialog {
     }
     
     private void importBackgroundFile() {
-        String file = GUI.browseForInputFile("Select Image File");
+        String file = GUI.browseForFile("Select Image File");
         if(file == null) {
             return;
         }
@@ -298,8 +291,9 @@ public class BadgeDataEditorForm extends JDialog {
         }
         String name = paneName.getText().trim();
         if(name.equals("")) {
-            Log.err("Name field can not be empty");
-            return false;
+            // Log.err("Name field can not be empty");
+            // return false;
+            name = " ";
         }
         String institution = paneInstitution.getText().trim();
         

@@ -23,28 +23,16 @@ import javax.swing.*;
  *
  * @author wira
  */
-public class TextInputPane extends JPanel {
-    private JTextField text;
-    private JLabel label;
-    private JButton[] buttons;
+public class OptionsPane extends JPanel {
+    private final JLabel label;
+    private final JToggleButton[] checkboxes;
     
-    public TextInputPane(String labelText, int labelWidth, boolean editable,
-                         String...buttonTitles) {
-        init(labelText, labelWidth, editable, buttonTitles);
-    }
-    
-    public TextInputPane(String labelText, int labelWidth,
-                         String...buttonTitles) {
-        init(labelText, labelWidth, true, buttonTitles);
-    }
-    
-    private final void init(String labelText, int labelWidth, boolean editable,
-                            String...buttonTitles) {
+    public OptionsPane(String labelText, int labelWidth,
+                       String...checkboxTitles) {
+   
         this.setLayout(new GridBagLayout());
-        buttons = new JButton[buttonTitles.length];
+        checkboxes = new JToggleButton[checkboxTitles.length];
         label = new JLabel(labelText);
-        text = new JTextField();
-        text.setEditable(editable);
         GridBagConstraints c = new GridBagConstraints();
         Dimension max;
         int i;
@@ -57,31 +45,30 @@ public class TextInputPane extends JPanel {
         label.setPreferredSize(max);
         label.setMaximumSize(max);
         add(label, c);
-        c.gridx = 1;
-        c.weightx = 1.0;
-        add(text, c);
         c.weighty = 1.0;
         c.weightx = 0.0;
-        for(i = 0; i < buttons.length; i++) {
-            c.gridx = i + 2;
-            buttons[i] = new JButton(buttonTitles[i]);
-            add(buttons[i], c);
+        for(i = 0; i < checkboxes.length; i++) {
+            c.gridx = i + 1;
+            checkboxes[i] = new JToggleButton(checkboxTitles[i]);
+            checkboxes[i].setPreferredSize(max);
+            checkboxes[i].setMaximumSize(max);
+            add(checkboxes[i], c);
         }
+        c.weightx = 1.0;
+        c.gridx++;
+        add(Box.createHorizontalBox(), c);
     }
     
-    public String getText() {
-        return text.getText();
+    public boolean getValue(int i) {
+        return checkboxes[i].isSelected();
     }
     
-    public void setText(String v) {
-        text.setText(v);
+    public void setValue(int i, boolean b) {
+        checkboxes[i].setSelected(b);
     }
     
-    public JTextField getTextField() {
-        return text;
-    }
-    
-    public void addAction(int buttonIndex, ActionListener a) {
-        buttons[buttonIndex].addActionListener(a);
+    public void addAction(int i, ActionListener a) {
+        checkboxes[i].addActionListener(a);
     }
 }
+

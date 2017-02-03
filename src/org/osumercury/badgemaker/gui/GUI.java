@@ -50,7 +50,7 @@ public class GUI {
         });
     }
     
-    public static String browseForInputFile(String title) {
+    public static String browseForFile(String title) {
         JFileChooser fc = new JFileChooser();
         fc.setCurrentDirectory(new File("."));
         fc.setDialogTitle(title);

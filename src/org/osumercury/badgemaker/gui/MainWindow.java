@@ -19,11 +19,12 @@ import java.util.List;
 import java.util.ArrayList;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.image.BufferedImage;
+import java.io.File;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.osumercury.badgemaker.*;
 import org.osumercury.badgemaker.renderers.ClassicMercuryBadgeRenderer;
 import org.osumercury.badgemaker.renderers.MercuryCertificateRenderer;
@@ -35,6 +36,10 @@ import org.osumercury.badgemaker.renderers.MercuryCertificateRenderer;
 public class MainWindow extends JFrame {
     org.osumercury.badgemaker.Renderer r0;
     org.osumercury.badgemaker.Renderer r1;
+    org.osumercury.badgemaker.Renderer currentRenderer;
+    
+    private static FontSelectDialog fontSelectDialog = new FontSelectDialog("Choose Font");;
+    
     private List<Badge> badges;
     private float width, height;
     private float dpi;
@@ -62,6 +67,7 @@ public class MainWindow extends JFrame {
     private JPanel paneRendererControls;
     private JPanel paneImageSizeControls;
     private JPanel paneRenderPreview;
+    private TextInputPane paneImageSize;
     private JLabel lblRenderer;
     private JLabel lblImageSize;
     private JLabel lblRenderPreview;
@@ -76,22 +82,17 @@ public class MainWindow extends JFrame {
     private TextInputPane paneOutputJPG;
     private JPanel paneOutputHalf;
     
-    private JComboBox cmbPDFPageSize;
-    private JComboBox cmbPDFPageOrientation;
-    private JTextField txtPDFPageMargin;
-    private JTextField txtPDFBadgeSpacing;
-    private JTextField txtPDFOutputFile;
-    private JLabel lblPDFOutputFile;
-    private JLabel lblPDFPageSize;
-    private JLabel lblPDFPageMargin;
-    private JLabel lblPDFBadgeSpacing;
-    private JButton btnPDFBrowse;
-    private JButton btnPDFSave;
+    private ComboBoxPane panePDFPageSize;
+    private ComboBoxPane panePDFPageOrientation;
+    private TextInputPane panePDFPageMargin;
+    private TextInputPane panePDFBadgeSpacing;
+    private TextInputPane panePDFOutputFile;
     
     public void init() {
         // use default
         r0 = new ClassicMercuryBadgeRenderer();
         r1 = new MercuryCertificateRenderer();
+        currentRenderer = r0;
         width = Badge.DEFAULT_WIDTH;
         height = Badge.DEFAULT_PROPORTION * Badge.DEFAULT_WIDTH;
         dpi = Badge.DEFAULT_RESOLUTION;
@@ -134,6 +135,7 @@ public class MainWindow extends JFrame {
             clearInputData(); 
         });
         btnImport.addActionListener(e -> { importCSV(); });
+        btnExport.addActionListener(e -> { exportCSV(); });
         paneInputControls = new JPanel(new FlowLayout(FlowLayout.LEADING));
         paneInputControls.add(btnAddEntry);
         paneInputControls.add(btnEditEntry);
@@ -151,12 +153,28 @@ public class MainWindow extends JFrame {
         lblRenderer = new JLabel("Renderer: ");
         cmbRenderers = new JComboBox();
         btnPreviewRender = new JButton("Preview");
+        btnPreviewRender.addActionListener(e -> { previewRender(); });
+        btnPreviewRender.setMaximumSize(new Dimension(100, 60));
         lblRenderPreview = new JLabel("Preview");
         lblRenderPreview.setHorizontalAlignment(SwingConstants.CENTER);
-        paneRenderPreview = new JPanel(new GridLayout(1, 2));
-        paneRenderPreview.add(paneCurrentRendererGUIControls);
+        lblRenderPreview.setMinimumSize(new Dimension(250, 5));
+        lblRenderPreview.setPreferredSize(new Dimension(250, 5));
+        lblRenderPreview.setMaximumSize(new Dimension(250, Short.MAX_VALUE));
+        paneRenderPreview = new JPanel();
+        paneRenderPreview.setLayout(new BoxLayout(paneRenderPreview, 
+                                                  BoxLayout.Y_AXIS));
+        btnPreviewRender.setAlignmentX(Component.CENTER_ALIGNMENT);
+        lblRenderPreview.setAlignmentX(Component.CENTER_ALIGNMENT);
+        paneRenderPreview.add(btnPreviewRender);
+        // paneRenderPreview.add(Box.createG)
         paneRenderPreview.add(lblRenderPreview);
-        paneRenderer.add(paneRenderPreview, BorderLayout.CENTER);
+        min = new Dimension(5, 5);
+        pref = new Dimension(5, 5);
+        max = new Dimension(5, Short.MAX_VALUE);
+        // paneRenderPreview.add(new Box.Filler(min, pref, max));
+        // paneRenderPreview.add(paneRenderPreviewPreview);
+        paneRenderer.add(paneCurrentRendererGUIControls, BorderLayout.CENTER);
+        paneRenderer.add(paneRenderPreview, BorderLayout.LINE_END);
         cmbRenderers.addItem(r0.getDescription());
         cmbRenderers.addItem(r1.getDescription());
         if(!(Main.getRenderer() instanceof ClassicMercuryBadgeRenderer ||
@@ -167,9 +185,11 @@ public class MainWindow extends JFrame {
         
         paneRendererControls.add(lblRenderer);
         paneRendererControls.add(cmbRenderers);
-        paneRendererControls.add(btnPreviewRender);
+        // paneRendererControls.add(btnPreviewRender);
         
         lblImageSize = new JLabel();
+        lblImageSize.setMinimumSize(new Dimension(120, 5));
+        lblImageSize.setMaximumSize(new Dimension(120, Short.MAX_VALUE));
         updateImageSizeLabel();
         btnChangeImageSize = new JButton("Change Size");
         btnChangeImageSize.addActionListener(e -> { changeSize(); });
@@ -181,7 +201,7 @@ public class MainWindow extends JFrame {
         paneImageSizeControls.add(cmbUnits);
         paneImageSizeControls.add(Box.createRigidArea(new Dimension(5, 0)));
         paneImageSizeControls.add(btnChangeImageSize);
-         paneImageSizeControls.add(Box.createRigidArea(new Dimension(5, 0)));
+        paneImageSizeControls.add(Box.createRigidArea(new Dimension(5, 0)));
         paneImageSizeControls.add(lblImageSize);
         paneRenderer.add(paneRendererControls, BorderLayout.PAGE_END);
         paneRenderer.add(paneImageSizeControls, BorderLayout.PAGE_START);
@@ -218,18 +238,61 @@ public class MainWindow extends JFrame {
         paneOutputHalf.add(paneOutputPNG);
         paneOutputHalf.add(Box.createRigidArea(new Dimension(5, 5)));
         paneOutputHalf.add(paneOutputJPG);
-        min = new Dimension(5, 5);
-        pref = new Dimension(5, 5);
-        max = new Dimension(5, Short.MAX_VALUE);
-        paneOutputHalf.add(new Box.Filler(min, pref, max));
+        paneOutputHalf.setMaximumSize(new Dimension(Short.MAX_VALUE, 250));
         
         paneOutputPDF = new JPanel();
         paneOutputPDF.setLayout(new BoxLayout(paneOutputPDF, BoxLayout.Y_AXIS));
         paneOutputPDF.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
+        String[] pageSizes = { "LETTER", "A4", "LEGAL", "A0", "A1", "A2", "A3",
+                               "A5", "A6" };
+        panePDFPageSize = new ComboBoxPane("PDF Page Size: ", pageSizes, 200);
+        String[] orientations = { "Portrait", "Landscape" };
+        panePDFPageOrientation = new ComboBoxPane("Page Orientation: ", orientations, 200);
+        panePDFPageMargin = new TextInputPane("Margins: ", 200);
+        panePDFBadgeSpacing = new TextInputPane("Badge Spacing: ", 200);
+        panePDFOutputFile = new TextInputPane("PDF Output File: ", 200,
+                                           "Browse", "Save");
+        panePDFPageSize.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
+        panePDFPageOrientation.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
+        panePDFPageMargin.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
+        panePDFBadgeSpacing.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
+        panePDFOutputFile.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
+        panePDFPageMargin.setText("0.25");
+        panePDFBadgeSpacing.setText("0.05");
+        panePDFOutputFile.addAction(0, e -> {
+            String path = GUI.browseForFile("Specify Output PDF File");
+            if(path != null) {
+                panePDFOutputFile.setText(path);
+            }
+        });
+        panePDFOutputFile.addAction(1, e -> {
+            savePDF(panePDFOutputFile.getText());
+        });
+        
+        paneOutputPDF.add(Box.createRigidArea(new Dimension(5, 5)));
+        paneOutputPDF.add(panePDFPageSize);
+        paneOutputPDF.add(Box.createRigidArea(new Dimension(5, 5)));
+        paneOutputPDF.add(panePDFPageOrientation);
+        paneOutputPDF.add(Box.createRigidArea(new Dimension(5, 5)));
+        paneOutputPDF.add(panePDFPageMargin);
+        paneOutputPDF.add(Box.createRigidArea(new Dimension(5, 5)));
+        paneOutputPDF.add(panePDFBadgeSpacing);
+        paneOutputPDF.add(Box.createRigidArea(new Dimension(5, 5)));
+        paneOutputPDF.add(panePDFOutputFile);
         
         paneOutput.add(paneOutputPDF);
-        paneOutput.add(Box.createRigidArea(new Dimension(5, 5)));
+        paneOutput.add(Box.createRigidArea(new Dimension(5, 10)));
+        JSeparator separator = new JSeparator(SwingConstants.HORIZONTAL);
+        // separator.setPreferredSize(new Dimension(Short.MAX_VALUE, 1));
+        separator.setMaximumSize(new Dimension(Short.MAX_VALUE, 1));
+        paneOutput.add(separator);
+        paneOutput.add(Box.createRigidArea(new Dimension(5, 10)));
         paneOutput.add(paneOutputHalf);
+        
+        min = new Dimension(5, 5);
+        pref = new Dimension(5, 5);
+        max = new Dimension(5, Short.MAX_VALUE);
+        paneOutput.add(new Box.Filler(min, pref, max));
         
         btnExit.addActionListener((ActionEvent e) -> {
             exit(0);
@@ -320,6 +383,48 @@ public class MainWindow extends JFrame {
         }
     }
     
+    private void savePDF(String path) {
+        // validate inputs
+        try {
+            PDRectangle ps = null;
+            switch(panePDFPageSize.getSelectedIndex()) {
+                case 0:
+                    ps = PDRectangle.LETTER; break;
+                case 1:
+                    ps = PDRectangle.A4; break;
+                case 2:
+                    ps = PDRectangle.LEGAL; break;
+                case 3:
+                    ps = PDRectangle.A0; break;
+                case 4:
+                    ps = PDRectangle.A1; break;
+                case 5:
+                    ps = PDRectangle.A2; break;
+                case 6:
+                    ps = PDRectangle.A3; break;
+                case 7:
+                    ps = PDRectangle.A5; break;
+                case 8:
+                    ps = PDRectangle.A6; break;
+            }
+            final PDRectangle pageSize = ps;
+            final boolean landscape = panePDFPageOrientation.getSelectedIndex() == 1;
+            final float margin = Float.parseFloat(panePDFPageMargin.getText());
+            final float spacing = Float.parseFloat(panePDFBadgeSpacing.getText());
+
+            applySize();
+            (new Thread(() -> {
+                IO.generatePDF(currentRenderer,
+                               ProgressDialog.create("Saving PDF"), 
+                               pageSize, margin, spacing, units, 
+                               landscape, true, badges,
+                               new File(path));
+            })).start();
+        } catch(Exception e) {
+            Log.err("Failed to generate PDF:\n" + e);
+        }
+    }
+    
     private void savePNG(String path) {
         applySize();
         (new Thread(() -> {
@@ -339,13 +444,23 @@ public class MainWindow extends JFrame {
     }
     
     private void importCSV() {
-        String file = GUI.browseForInputFile("Select File to Import");       
+        String file = GUI.browseForFile("Select File to Import");       
         if(file != null) {
             Progress p = ProgressDialog.create("Importing " + file);
             (new Thread(() -> {
                 badges.addAll(IO.readFromCSV(p, file, 
                                             width, height, (int) dpi));
                 populateInputTable();
+            })).start();
+        }
+    }
+    
+    private void exportCSV() {
+        String file = GUI.browseForFile("Select File to Export Data");       
+        if(file != null) {
+            Progress p = ProgressDialog.create("Exporting " + file);
+            (new Thread(() -> {
+                IO.saveCSV(p, badges, file);
             })).start();
         }
     }
@@ -378,20 +493,23 @@ public class MainWindow extends JFrame {
     }
     
     private void rendererListSelectionChanged() {
-        paneRenderPreview.removeAll();
+        paneRenderer.removeAll();
         switch(cmbRenderers.getSelectedIndex()) {
             case 0:
-                paneCurrentRendererGUIControls = r0.getRendererGUIControls();
+                currentRenderer = r0;
                 break;
             case 1:
-                paneCurrentRendererGUIControls = r1.getRendererGUIControls();
+                currentRenderer = r1;
                 break;
             case 2:
-                paneCurrentRendererGUIControls = Main.getRenderer().getRendererGUIControls();
+                currentRenderer = Main.getRenderer();
                 break;
         }
-        paneRenderPreview.add(paneCurrentRendererGUIControls);
-        paneRenderPreview.add(lblRenderPreview);
+        paneCurrentRendererGUIControls = currentRenderer.getRendererGUIControls();
+        paneRenderer.add(paneCurrentRendererGUIControls, BorderLayout.CENTER);
+        paneRenderer.add(paneRenderPreview, BorderLayout.LINE_END);
+        paneRenderer.add(paneRendererControls, BorderLayout.PAGE_END);
+        paneRenderer.add(paneImageSizeControls, BorderLayout.PAGE_START);
         paneRenderPreview.validate();
     }
     
@@ -435,6 +553,10 @@ public class MainWindow extends JFrame {
         }
     }
     
+    public static FontSelectDialog getFontSelectDialog() {
+        return fontSelectDialog;
+    }
+    
     private void editBadge() {
         int index = tblInput.getSelectedRow();
         if(index < 0) {
@@ -447,6 +569,17 @@ public class MainWindow extends JFrame {
         if(GUI.confirmYesNo(this, "Exit the program?", "Exit")) {
             System.exit(code);
         }
+    }
+
+    private void previewRender() {
+        Badge preview = new Badge(47, "Full Name", "Institution", null,
+                                  "ffffff", "ff7300", "ffffff");
+        preview.setWidth(width);
+        preview.setProportion(height / width);
+        preview.setResolution((int) dpi);
+        lblRenderPreview.setText("");
+        lblRenderPreview.setIcon(new ImageIcon(ImageTools.fastScale(
+                preview.getImage(currentRenderer), 250, 250)));        
     }
     
     class ColorColumnCellRenderer extends JLabel implements TableCellRenderer {

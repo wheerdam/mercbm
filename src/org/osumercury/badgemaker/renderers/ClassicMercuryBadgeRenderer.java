@@ -15,7 +15,6 @@
  */
 package org.osumercury.badgemaker.renderers;
 
-import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
@@ -23,10 +22,13 @@ import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
-import javax.swing.JLabel;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JPanel;
-import javax.swing.SwingConstants;
 import org.osumercury.badgemaker.*;
+import org.osumercury.badgemaker.gui.MainWindow;
+import org.osumercury.badgemaker.gui.OptionsPane;
+import org.osumercury.badgemaker.gui.TextInputPane;
 
 /**
  *
@@ -134,8 +136,15 @@ public class ClassicMercuryBadgeRenderer extends Renderer {
                     backgroundY = d.height - background.getHeight();
                     break;
                 default:
-                case Badge.BACKGROUND_MIDDLE:                
-                    backgroundY = (int)(d.height/2.0 - background.getHeight()/2.0);
+                case Badge.BACKGROUND_MIDDLE:         
+                    if(badge.getBackgroundScaling() == Badge.BACKGROUND_FIT_HEIGHT) {
+                        backgroundY = (int)(secondaryHeight*d.height + 
+                                      (1-secondaryHeight-primaryHeight)*d.height/2.0f -
+                                      background.getHeight()/2.0);
+                    } else {
+                        backgroundY = (int)(d.height/2.0f -
+                                      background.getHeight()/2.0);
+                    }
             }
             g.drawImage(background,
                         (int)(d.width/2.0 - background.getWidth()/2.0),
@@ -144,15 +153,15 @@ public class ClassicMercuryBadgeRenderer extends Renderer {
         g.setColor(badge.textBackgroundColor);
         Polygon p = new Polygon();
         p.addPoint(0,                       0);
-        p.addPoint(0,                       (int) (primaryHeight * d.height));
-        p.addPoint((int)(0.85 * d.width),   (int) (primaryHeight * d.height));
+        p.addPoint(0,                       (int) (secondaryHeight * d.height));
+        p.addPoint((int)(0.85 * d.width),   (int) (secondaryHeight * d.height));
         p.addPoint((int)(1.00 * d.width),   0);
         g.fillPolygon(p);
         p = new Polygon();
-        p.addPoint(0,                       (int) ((1-secondaryHeight) * d.height));
+        p.addPoint(0,                       (int) ((1-primaryHeight) * d.height));
         p.addPoint(0,                       (int) (1.00 * d.height));
         p.addPoint((int)(1.00 * d.width),   (int) (1.00 * d.height));
-        p.addPoint((int)(1.00 * d.width),   (int) ((1-secondaryHeight) * d.height));
+        p.addPoint((int)(1.00 * d.width),   (int) ((1-primaryHeight) * d.height));
         g.fillPolygon(p);
         FontMetrics fm;
         int textX, textY, textW, textH, limitW, numberW;
@@ -180,7 +189,7 @@ public class ClassicMercuryBadgeRenderer extends Renderer {
             gg.setFont(f);
             gg.drawString(fNumber, 0, fm.getHeight()-fm.getDescent());
             gg.dispose();
-            textH = (int)(primaryHeight * d.height);
+            textH = (int)(secondaryHeight * d.height);
             numberW = (int)((float)textH / imgNumber.getHeight() *
                           imgNumber.getWidth());
             g.drawImage(ImageTools.scale(imgNumber, numberW, textH), 
@@ -249,10 +258,72 @@ public class ClassicMercuryBadgeRenderer extends Renderer {
     @Override
     public JPanel getRendererGUIControls() {
         JPanel pane = new JPanel();
-        JLabel lblNoGUI = new JLabel("Mercury Badge");
-        lblNoGUI.setHorizontalAlignment(SwingConstants.CENTER);
-        pane.setLayout(new BorderLayout());
-        pane.add(lblNoGUI, BorderLayout.CENTER);
+        Dimension min, pref, max;
+        pane.setLayout(new BoxLayout(pane, BoxLayout.Y_AXIS));
+        pane.add(Box.createRigidArea(new Dimension(5, 5)));
+        
+        final TextInputPane paneFont = new TextInputPane("Font: ", 120, false,
+                                                         "Change");
+        paneFont.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
+        paneFont.setText(font);
+        paneFont.addAction(0, e -> {
+            MainWindow.getFontSelectDialog().setModal(true);
+            MainWindow.getFontSelectDialog().setLocationRelativeTo(pane);
+            MainWindow.getFontSelectDialog().showDialog();
+            String fontName = MainWindow.getFontSelectDialog().getFontName();
+            if(fontName != null) {
+                font = fontName;
+                paneFont.setText(font);
+            }
+        });
+        pane.add(paneFont);
+        pane.add(Box.createRigidArea(new Dimension(5, 5)));
+        
+        final OptionsPane paneOptions = new OptionsPane("Font Options: ", 120,
+                                                        "Bold");
+        paneOptions.addAction(0, e -> {
+            fontBold = paneOptions.getValue(0);
+        });
+        paneOptions.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
+        pane.add(paneOptions);
+        pane.add(Box.createRigidArea(new Dimension(5, 5)));
+        
+        final TextInputPane panePrimaryHeight = new
+                TextInputPane("Primary Text Height: ", 200, "Apply");
+        panePrimaryHeight.setText(String.format("%.3f", primaryHeight));
+        panePrimaryHeight.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
+        panePrimaryHeight.addAction(0, e ->  {
+            try {
+                float newPrimaryHeight = Float.parseFloat(
+                        panePrimaryHeight.getText());
+                primaryHeight = newPrimaryHeight;
+            } catch(NumberFormatException nfe) {
+                panePrimaryHeight.setText(String.format("%.3f", primaryHeight));
+            }
+        });
+        pane.add(panePrimaryHeight);
+        pane.add(Box.createRigidArea(new Dimension(5, 5)));
+        
+        final TextInputPane paneSecondaryHeight = new
+                TextInputPane("Secondary Text Height: ", 200, "Apply");
+        paneSecondaryHeight.setText(String.format("%.3f", secondaryHeight));
+        paneSecondaryHeight.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
+        paneSecondaryHeight.addAction(0, e ->  {
+            try {
+                float newSecondaryHeight = Float.parseFloat(
+                        paneSecondaryHeight.getText());
+                secondaryHeight = newSecondaryHeight;
+            } catch(NumberFormatException nfe) {
+                paneSecondaryHeight.setText(String.format("%.3f", secondaryHeight));
+            }
+        });
+        pane.add(paneSecondaryHeight);
+        
+        min = new Dimension(5, 5);
+        pref = new Dimension(5, 5);
+        max = new Dimension(5, Short.MAX_VALUE);
+        pane.add(new Box.Filler(min, pref, max));
+        
         return pane;
     }
 }

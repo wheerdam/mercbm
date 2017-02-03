@@ -54,6 +54,8 @@ public class ImageTools {
                 c = new Color(Integer.parseInt(hex, 16));     
             } else if(hex.length() == 8) {
                 c = new Color((int)Long.parseLong(hex, 16), true);
+            } else {
+                c = Color.BLACK;
             }
             return c;
         } catch(Exception e) {

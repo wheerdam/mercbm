@@ -17,6 +17,7 @@ package org.osumercury.badgemaker;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -51,8 +52,8 @@ public class IO {
         // set up our coordinate system
         // pdf uses 1/72" coodinate units, we use this to convert our internal
         // dimensions to pdf coordinates
-        float margin = (mm ? 25.4f : 1.0f) * pageMargin * 72.0f;
-        float spacing = (mm ? 25.4f : 1.0f) * badgeSpacing * 72.0f;
+        float margin = (mm ? 1/25.4f : 1.0f) * pageMargin * 72.0f;
+        float spacing = (mm ? 1/25.4f : 1.0f) * badgeSpacing * 72.0f;
         
         if(badges.isEmpty()) {
             Log.err("No badges to output");
@@ -78,8 +79,8 @@ public class IO {
                            "- " + (PNG ? "lossless images" : "JPEG images"));
         for(Badge badge : badges) {
             badgeTitle = badge.number + "-" + badge.primaryText;
-            badgeW = (mm ? 25.4f : 1.0f) * badge.getWidth() * 72.0f;
-            badgeH = (mm ? 25.4f : 1.0f) * badge.getHeight() * 72.0f;
+            badgeW = (mm ? 1/25.4f : 1.0f) * badge.getWidth() * 72.0f;
+            badgeH = (mm ? 1/25.4f : 1.0f) * badge.getHeight() * 72.0f;
             Log.d(0, "      Placing " +
                                Main.pad(25, badgeTitle) + " (" +
                                String.format("%.2f", badgeW) + " x " +
@@ -127,16 +128,7 @@ public class IO {
                        new PDPage(new PDRectangle(pdPageSize.getHeight(),
                                                   pdPageSize.getWidth()));
                 try {
-                    // if(landscape) {
-                    //    page.setRotation(90);
-                    //    PDRectangle mediaBox = page.getMediaBox();
-                    //    float pageWidth = mediaBox.getWidth();
-                    //    pS = new PDPageContentStream(doc, page, 
-                    //            PDPageContentStream.AppendMode.OVERWRITE, false);
-                    //    pS.transform(new Matrix(0, 1, -1, 0, pageWidth, 0));
-                    // } else {
-                        pS = new PDPageContentStream(doc, page);
-                    // }
+                    pS = new PDPageContentStream(doc, page);
                     if(pS == null) {
                         throw new IOException();
                     }
@@ -188,9 +180,15 @@ public class IO {
                 p.update();
             }
             doc.save(output);
-            doc.close();
         } catch(IOException ioe) {
             Log.err("Failed to save to " +
+                               output.getAbsolutePath() + " reason: " + ioe);
+        }
+        
+        try {
+            doc.close();
+        } catch(IOException ioe) {
+            Log.err("Failed to close " +
                                output.getAbsolutePath() + " reason: " + ioe);
         }
         
@@ -274,6 +272,81 @@ public class IO {
                 }
             } catch(Exception e) {
                 Log.err("Failed to write " + fileName + ", reason: " + e);
+            }
+        }
+        
+        if(p != null) {
+            p.done = true;
+            p.update();
+        }
+    }
+    
+    public static void saveCSV(Progress p, List<Badge> badges, String csvFile) {
+        File parentPath = (new File(csvFile)).getParentFile();
+        String imageParentPath = parentPath == null ? "." : 
+                                 parentPath.getAbsolutePath();
+        FileWriter w = null;
+        CSVPrinter printer = null;
+        try {
+            w = new FileWriter(new File(csvFile));
+            CSVFormat format = CSVFormat.DEFAULT.withRecordSeparator("\n");
+            printer = new CSVPrinter(w, format);
+            int badgeNum = 1;
+            for(Badge badge : badges) {
+                String name = badge.number + "-" + badge.primaryText;
+                if(p != null) {
+                    if(p.cancel) {
+                        p.done = true;
+                        p.update();
+                        w.close();
+                        return;
+                    }
+                    p.text = "Exporting " + name;
+                    p.percent = (float) badgeNum / badges.size();
+                    badgeNum++;
+                    p.update();
+                }
+                List<String> fields = new ArrayList<>();
+                fields.add(String.valueOf(badge.number));
+                fields.add(badge.primaryText);
+                fields.add(badge.secondaryText);
+                if(badge.background != null) {
+                    fields.add(name + ".png");
+                } else {
+                    fields.add("");
+                }
+                fields.add(String.format("%06x", 
+                           badge.backgroundColor.getRGB() & 0xffffffL));
+                fields.add(String.format("%06x", 
+                           badge.textBackgroundColor.getRGB() & 0xffffffL));
+                fields.add(String.format("%06x", 
+                           badge.textColor.getRGB() & 0xffffffL));
+                switch(badge.getBackgroundScaling()) {
+                    case 0:
+                        fields.add("fit_width");
+                        break;
+                    case 1:
+                        fields.add("fit_height");
+                        break;
+                }
+                for(String d : badge.getExtraData()) {
+                    fields.add(d);
+                }
+                printer.printRecord(fields);
+                if(badge.background != null) {
+                    ImageIO.write(badge.background, "png",
+                                  new File(name + ".png"));
+                }
+            }
+        } catch(Exception e) {
+            Log.err("Failed to save CSV:\n" + e);
+        } finally {
+            try {
+                w.flush();
+                w.close();
+                printer.close();
+            } catch(IOException ioe) {
+                Log.err("Failed to close output");
             }
         }
         
