@@ -71,9 +71,9 @@ public class Main {
                         case "--help":
                             usage();
                             System.exit(0);
-                        case "--renderer":
+                        case "--certificate-renderer":
                             check(args, i, 1);
-                            setRenderer(Integer.parseInt(args[++i]));                            
+                            r = new MercuryCertificateRenderer();
                             break;
                         case "--custom-renderer":
                             check(args, i, 2);
@@ -91,7 +91,7 @@ public class Main {
                             check(args, i, 1);
                             height = Float.parseFloat(args[++i]);
                             break;
-                        case "-d":
+                        case "-r":
                             check(args, i, 1);
                             resolution = Integer.parseInt(args[++i]);
                             break;
@@ -126,41 +126,16 @@ public class Main {
                             r.setProperty(args[++i], args[++i]);
                             break;
                         case "-l":
-                            Log.d(0, "Renderer: " + r.getDescription());
-                            Log.d(0, "Valid properties:");
-                            Log.d(0, pad(10, "Type") +
-                                               pad(25, "Key") +
-                                               pad(14, "Default") +
-                                               " Description");
-                            for(Renderer.Property p : r.getValidProperties()) {
-                                switch(p.getType()) {
-                                    case Renderer.Property.FLOAT:
-                                        Log.di(0, pad(12, "  FLOAT"));
-                                        break;
-                                    case Renderer.Property.INTEGER:
-                                        Log.di(0, pad(12, "  INTEGER"));
-                                        break;
-                                    case Renderer.Property.STRING:
-                                        Log.di(0, pad(12, "  STRING"));
-                                        break;
-                                    default:
-                                        Log.di(0, pad(12, "  INVALID"));
-                                }
-                                Log.d(0, pad(25, p.getKey()) + " " +
-                                                   pad(11, p.getDefaultValue()) + "   " +
-                                                   p.getDescription());
-                            }
+                            printRendererProperties(r);
                             System.exit(0);
                         default:
-                            Log.err("Unknown option: " +
-                                               args[i]);
+                            Log.err("Unknown option: " + args[i]);
+                            Log.err("Run with '--help' for command line options");
                             System.err.println();
-                            usage();
                             System.exit(1);
                     }
                 } catch(Exception e) {
-                    Log.err("Failed to parse option: " + 
-                                       args[i]);
+                    Log.err("Failed to parse option: " + args[i]);
                     e.printStackTrace();
                     System.exit(1);
                 }
@@ -259,18 +234,6 @@ public class Main {
         }
     }
     
-    public static void setRenderer(int rendererID) {
-        switch(rendererID) {
-            case 1:
-                r = new MercuryCertificateRenderer();
-                break;
-            default:
-                Log.err("Unknown renderer ID, setting to default");
-            case 0:
-                r = new ClassicMercuryBadgeRenderer();
-        }
-    }
-    
     public static Renderer getRenderer() {
         return r;
     }
@@ -313,8 +276,8 @@ public class Main {
                 + "\n"
                 + "RENDERER: by default, the program will use the classic Mercury badge\n"
                 + "renderer. The following is a list of alternative renderers:\n"
-                + " --renderer 1            Mercury certificate of participation\n"
-                + " --renderer 2            Mercury awards\n"
+                + "\n"
+                + " --certificate-renderer  Mercury certificate of participation\n"
                 + " --custom-renderer CLASSNAME CLASSFILE\n"
                 + "                         dynamically load an external renderer\n"
                 + "\n"
@@ -327,7 +290,7 @@ public class Main {
                 + "  -h VALUE               badge height (default " +
                                             String.format("%.2f", Badge.DEFAULT_PROPORTION *
                                                                   Badge.DEFAULT_WIDTH) + ")\n"
-                + "  -d RESOLUTION          output image resolution (dots per units, default " +
+                + "  -r RESOLUTION          output image resolution (dots per units, default " +
                                             Badge.DEFAULT_RESOLUTION + ")\n"
                 + "  -p                     use lossless image format when applicable\n"
                 + "\n"
@@ -342,6 +305,33 @@ public class Main {
         Log.d(0, help);
     }
     
+    public static void printRendererProperties(Renderer r) {
+        Log.d(0, "Renderer: " + r.getDescription());
+        Log.d(0, "Valid properties:");
+        Log.d(0, pad(10, "Type") +
+                           pad(25, "Key") +
+                           pad(14, "Default") +
+                           " Description");
+        for(Renderer.Property p : r.getValidProperties()) {
+            switch(p.getType()) {
+                case Renderer.Property.FLOAT:
+                    Log.di(0, pad(12, "  FLOAT"));
+                    break;
+                case Renderer.Property.INTEGER:
+                    Log.di(0, pad(12, "  INTEGER"));
+                    break;
+                case Renderer.Property.STRING:
+                    Log.di(0, pad(12, "  STRING"));
+                    break;
+                default:
+                    Log.di(0, pad(12, "  INVALID"));
+            }
+            Log.d(0, pad(25, p.getKey()) + " " +
+                               pad(11, p.getDefaultValue()) + "   " +
+                               p.getDescription());
+        }
+    }
+    
     static class CustomClassLoader extends ClassLoader {
         public Class loadClass(String name, String path) {
             Class c = null;
@@ -351,8 +341,7 @@ public class Main {
             } catch(IOException ioe) {
                 Log.err("Failed to read class file " + ioe);
             } catch(NoClassDefFoundError e) {
-                Log.err("Failed to load custom renderer class: " +
-                                   e);
+                Log.err("Failed to load custom renderer class: " + e);
             }
             return c;
         }
