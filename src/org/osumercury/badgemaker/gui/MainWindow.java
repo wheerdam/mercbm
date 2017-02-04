@@ -38,7 +38,8 @@ public class MainWindow extends JFrame {
     org.osumercury.badgemaker.Renderer r1;
     org.osumercury.badgemaker.Renderer currentRenderer;
     
-    private static FontSelectDialog fontSelectDialog = new FontSelectDialog("Choose Font");;
+    private static final FontSelectDialog fontSelectDialog = 
+            new FontSelectDialog("Choose Font");
     
     private List<Badge> badges;
     private float width, height;
@@ -59,15 +60,13 @@ public class MainWindow extends JFrame {
     private JButton btnExport;
     private JButton btnAddEntry;
     private JButton btnEditEntry;
+    private JButton btnDuplicateEntry;
     private JButton btnDeleteEntry;
     private JButton btnClear;
-    
-    private JButton btnPDFGenerate;
     
     private JPanel paneRendererControls;
     private JPanel paneImageSizeControls;
     private JPanel paneRenderPreview;
-    private TextInputPane paneImageSize;
     private JLabel lblRenderer;
     private JLabel lblImageSize;
     private JLabel lblRenderPreview;
@@ -121,13 +120,15 @@ public class MainWindow extends JFrame {
         tblInput = new JTable();
         scrollerTblInput = new JScrollPane(tblInput);
         paneInput.add(scrollerTblInput, BorderLayout.CENTER);
-        btnImport = new JButton("Import CSV");
-        btnExport = new JButton("Export");
+        btnImport = new JButton("Load");
+        btnExport = new JButton("Save");
         btnAddEntry = new JButton("Add");
         btnAddEntry.setFont(new Font(Font.DIALOG, Font.BOLD, 14));
         btnAddEntry.addActionListener(e -> { addBadge(null); });
         btnEditEntry = new JButton("Edit");
         btnEditEntry.addActionListener(e -> { editBadge(); });
+        btnDuplicateEntry = new JButton("Duplicate");
+        btnDuplicateEntry.addActionListener(e -> { duplicateBadge(); });
         btnDeleteEntry = new JButton("Delete");
         btnDeleteEntry.addActionListener(e -> { deleteInputEntry(); });
         btnClear = new JButton("Clear");
@@ -139,6 +140,7 @@ public class MainWindow extends JFrame {
         paneInputControls = new JPanel(new FlowLayout(FlowLayout.LEADING));
         paneInputControls.add(btnAddEntry);
         paneInputControls.add(btnEditEntry);
+        paneInputControls.add(btnDuplicateEntry);
         paneInputControls.add(Box.createRigidArea(new Dimension(5, 0)));
         paneInputControls.add(btnImport);
         paneInputControls.add(btnExport);
@@ -188,6 +190,8 @@ public class MainWindow extends JFrame {
         // paneRendererControls.add(btnPreviewRender);
         
         lblImageSize = new JLabel();
+        lblImageSize.setToolTipText("This is the size of the individual " +
+                "badge at the specified units");
         lblImageSize.setMinimumSize(new Dimension(120, 5));
         lblImageSize.setMaximumSize(new Dimension(120, Short.MAX_VALUE));
         updateImageSizeLabel();
@@ -269,6 +273,8 @@ public class MainWindow extends JFrame {
             savePDF(panePDFOutputFile.getText());
         });
         
+        paneOutputPDF.setToolTipText("Output a PDF document of the badges. " +
+                "Multiple badges will be placed in a page if they fit.");
         paneOutputPDF.add(Box.createRigidArea(new Dimension(5, 5)));
         paneOutputPDF.add(panePDFPageSize);
         paneOutputPDF.add(Box.createRigidArea(new Dimension(5, 5)));
@@ -563,6 +569,18 @@ public class MainWindow extends JFrame {
             return;
         }
         addBadge(badges.get(index));
+    }
+    
+    private void duplicateBadge() {
+        int[] rows = tblInput.getSelectedRows();
+        if(rows.length == 0) {
+            return;
+        }
+        
+        for(int i = rows.length - 1; i >= 0; i--) {
+            badges.add(rows[i], badges.get(rows[i]));
+        }
+        populateInputTable();
     }
     
     public void exit(int code) {

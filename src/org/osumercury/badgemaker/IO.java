@@ -46,7 +46,6 @@ public class IO {
                                    boolean PNG,
                                    List<Badge> badges,
                                    File output) {
-        PDDocument doc = new PDDocument();
         boolean mm = units == UNIT_MM;
         
         // set up our coordinate system
@@ -57,9 +56,14 @@ public class IO {
         
         if(badges.isEmpty()) {
             Log.err("No badges to output");
+            if(p != null) {
+                p.done = true;
+                p.update();
+            }
             return;
         }
         
+        PDDocument doc = new PDDocument();
         String badgeTitle;
         float offX = margin;
         float offY = margin;

@@ -55,7 +55,6 @@ public class FontSelectDialog extends JDialog {
         JScrollPane listScroller = new JScrollPane(listFont);
         listScroller.setPreferredSize(new Dimension(500,250));
         DefaultListModel<String> listModel = new DefaultListModel();
-        listModel.addElement("-- use merccc bitmap fonts --");
         for(Font f : ge.getAllFonts()) {
             listModel.addElement(f.getFontName());
         }
@@ -70,8 +69,7 @@ public class FontSelectDialog extends JDialog {
         OK = false;
         
         btnOK.addActionListener((ActionEvent e) -> {
-            fontName = listFont.getSelectedIndex() == 0 ? null :
-                    listFont.getSelectedValue();
+            fontName = listFont.getSelectedValue();
             OK = true;
             lastSelection = listFont.getSelectedIndex();
             dispose();
@@ -82,23 +80,16 @@ public class FontSelectDialog extends JDialog {
         });
         
         listFont.addListSelectionListener((ListSelectionEvent e) -> {
-            int index = listFont.getSelectedIndex();
-            if(index > 0) {
-                String name = listFont.getSelectedValue();
-                txtPreview.setText(name);
-                txtPreview.setFont(new Font(name, Font.PLAIN, 20));
-            } else {
-                txtPreview.setText("No Preview");
-                txtPreview.setFont(new Font("Monospaced", Font.PLAIN, 20));
-            }
+            String name = listFont.getSelectedValue();
+            txtPreview.setText(name);
+            txtPreview.setFont(new Font(name, Font.PLAIN, 20));
         });
         
         listFont.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent evt) {
                 if(evt.getClickCount() == 2) {
-                    fontName = listFont.getSelectedIndex() == 0 ? null :
-                            listFont.getSelectedValue();
+                    fontName = listFont.getSelectedValue();
                     OK = true;
                     lastSelection = listFont.getSelectedIndex();
                     dispose();
