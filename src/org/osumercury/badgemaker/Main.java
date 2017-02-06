@@ -42,7 +42,7 @@ public class Main {
     private static boolean pdfLandscape;
     private static boolean preferLosslessOutput = false;
     private static Renderer r = new ClassicMercuryBadgeRenderer();
-    private static CustomClassLoader loader = new CustomClassLoader();
+    private static final CustomClassLoader loader = new CustomClassLoader();
     private static float width = Badge.DEFAULT_WIDTH;
     private static float height = Badge.DEFAULT_PROPORTION *
                                         Badge.DEFAULT_WIDTH;
@@ -129,6 +129,10 @@ public class Main {
                         case "-l":
                             printRendererProperties(r);
                             System.exit(0);
+                        case "-c":
+                            check(args, i, 2);
+                            loader.loadClass(args[++i], args[++i]);
+                            break;
                         default:
                             Log.err("Unknown option: " + args[i]);
                             Log.err("Run with '--help' for command line options");
@@ -137,7 +141,6 @@ public class Main {
                     }
                 } catch(Exception e) {
                     Log.err("Failed to parse option: " + args[i]);
-                    e.printStackTrace();
                     System.exit(1);
                 }
                 i++;

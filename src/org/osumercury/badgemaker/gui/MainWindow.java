@@ -75,6 +75,7 @@ public class MainWindow extends JFrame {
     private JComboBox cmbUnits;
     private JComboBox cmbRenderers;
     private JPanel paneCurrentRendererGUIControls;
+    private JScrollPane scrollCurrentRendererGUIControls;
     
     private JPanel paneOutputPDF;
     private TextInputPane paneOutputPNG;
@@ -151,6 +152,7 @@ public class MainWindow extends JFrame {
         
         paneRenderer.setLayout(new BorderLayout());
         paneCurrentRendererGUIControls = r0.getRendererGUIControls();
+        scrollCurrentRendererGUIControls = new JScrollPane(paneCurrentRendererGUIControls);
         paneRendererControls = new JPanel(new FlowLayout(FlowLayout.LEADING));
         lblRenderer = new JLabel("Renderer: ");
         cmbRenderers = new JComboBox();
@@ -170,12 +172,12 @@ public class MainWindow extends JFrame {
         paneRenderPreview.add(btnPreviewRender);
         // paneRenderPreview.add(Box.createG)
         paneRenderPreview.add(lblRenderPreview);
-        min = new Dimension(5, 5);
-        pref = new Dimension(5, 5);
-        max = new Dimension(5, Short.MAX_VALUE);
+        // min = new Dimension(5, 5);
+        // pref = new Dimension(5, 5);
+        // max = new Dimension(5, Short.MAX_VALUE);
         // paneRenderPreview.add(new Box.Filler(min, pref, max));
         // paneRenderPreview.add(paneRenderPreviewPreview);
-        paneRenderer.add(paneCurrentRendererGUIControls, BorderLayout.CENTER);
+        paneRenderer.add(scrollCurrentRendererGUIControls, BorderLayout.CENTER);
         paneRenderer.add(paneRenderPreview, BorderLayout.LINE_END);
         cmbRenderers.addItem(r0.getDescription());
         cmbRenderers.addItem(r1.getDescription());
@@ -512,7 +514,8 @@ public class MainWindow extends JFrame {
                 break;
         }
         paneCurrentRendererGUIControls = currentRenderer.getRendererGUIControls();
-        paneRenderer.add(paneCurrentRendererGUIControls, BorderLayout.CENTER);
+        scrollCurrentRendererGUIControls = new JScrollPane(paneCurrentRendererGUIControls);
+        paneRenderer.add(scrollCurrentRendererGUIControls, BorderLayout.CENTER);
         paneRenderer.add(paneRenderPreview, BorderLayout.LINE_END);
         paneRenderer.add(paneRendererControls, BorderLayout.PAGE_END);
         paneRenderer.add(paneImageSizeControls, BorderLayout.PAGE_START);
