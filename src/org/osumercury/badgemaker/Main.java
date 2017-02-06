@@ -42,6 +42,7 @@ public class Main {
     private static boolean pdfLandscape;
     private static boolean preferLosslessOutput = false;
     private static Renderer r = new ClassicMercuryBadgeRenderer();
+    private static CustomClassLoader loader = new CustomClassLoader();
     private static float width = Badge.DEFAULT_WIDTH;
     private static float height = Badge.DEFAULT_PROPORTION *
                                         Badge.DEFAULT_WIDTH;
@@ -239,8 +240,7 @@ public class Main {
     }
     
     public static void loadCustomRenderer(String className, String classFile) {
-        // let's load the file and box it
-        CustomClassLoader loader = new CustomClassLoader();
+        // let's load the file and box it        
         try {
             Class c = loader.loadClass(className, classFile);
             if(c == null) {
