@@ -90,6 +90,20 @@ public class ClassicMercuryBadgeRenderer extends Renderer {
     }
     
     @Override
+    public Object getProperty(String key) {
+        switch(key) {
+            case "font":                return font;
+            case "primary-height":      return primaryHeight;
+            case "secondary-height":    return secondaryHeight;
+            case "text-height-factor":  return textHeightFactor;
+            case "font-bold":           return fontBold ? "yes" : "no";
+            default:
+                System.err.println("Unknown property key: " + key);
+        }
+        return null;
+    }
+    
+    @Override
     public BufferedImage render(Badge badge) {
         // the renderer always works with pixel dimensions
         Dimension d = badge.getPixelDimension();
@@ -284,6 +298,7 @@ public class ClassicMercuryBadgeRenderer extends Renderer {
         paneOptions.addAction(0, e -> {
             fontBold = paneOptions.getValue(0);
         });
+        paneOptions.setValue(0, fontBold);
         paneOptions.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
         pane.add(paneOptions);
         pane.add(Box.createRigidArea(new Dimension(5, 5)));

@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -26,8 +27,7 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.osumercury.badgemaker.*;
-import org.osumercury.badgemaker.renderers.ClassicMercuryBadgeRenderer;
-import org.osumercury.badgemaker.renderers.MercuryCertificateRenderer;
+import org.osumercury.badgemaker.renderers.*;
 
 /**
  *
@@ -64,6 +64,7 @@ public class MainWindow extends JFrame {
     private JButton btnDeleteEntry;
     private JButton btnClear;
     
+    private JPanel paneFormatHeader;
     private JPanel paneRendererControls;
     private JPanel paneImageSizeControls;
     private JPanel paneRenderPreview;
@@ -72,6 +73,8 @@ public class MainWindow extends JFrame {
     private JLabel lblRenderPreview;
     private JButton btnChangeImageSize;
     private JButton btnPreviewRender;
+    private JButton btnSaveRendererSettings;
+    private JButton btnLoadRendererSettings;
     private JComboBox cmbUnits;
     private JComboBox cmbRenderers;
     private JPanel paneCurrentRendererGUIControls;
@@ -121,8 +124,8 @@ public class MainWindow extends JFrame {
         tblInput = new JTable();
         scrollerTblInput = new JScrollPane(tblInput);
         paneInput.add(scrollerTblInput, BorderLayout.CENTER);
-        btnImport = new JButton("Load");
-        btnExport = new JButton("Save");
+        btnImport = new JButton("Load Data");
+        btnExport = new JButton("Save Data");
         btnAddEntry = new JButton("Add");
         btnAddEntry.setFont(new Font(Font.DIALOG, Font.BOLD, 14));
         btnAddEntry.addActionListener(e -> { addBadge(null); });
@@ -143,8 +146,8 @@ public class MainWindow extends JFrame {
         paneInputControls.add(btnEditEntry);
         paneInputControls.add(btnDuplicateEntry);
         paneInputControls.add(Box.createRigidArea(new Dimension(5, 0)));
-        paneInputControls.add(btnImport);
         paneInputControls.add(btnExport);
+        paneInputControls.add(btnImport);
         paneInputControls.add(Box.createRigidArea(new Dimension(5, 0)));
         paneInputControls.add(btnDeleteEntry);
         paneInputControls.add(btnClear);
@@ -157,26 +160,24 @@ public class MainWindow extends JFrame {
         lblRenderer = new JLabel("Renderer: ");
         cmbRenderers = new JComboBox();
         btnPreviewRender = new JButton("Preview");
+        btnSaveRendererSettings = new JButton("Save Settings");
+        btnLoadRendererSettings = new JButton("Load Settings");
         btnPreviewRender.addActionListener(e -> { previewRender(); });
         btnPreviewRender.setMaximumSize(new Dimension(100, 60));
-        lblRenderPreview = new JLabel("Preview");
+        lblRenderPreview = new JLabel("Click to see a preview");
         lblRenderPreview.setHorizontalAlignment(SwingConstants.CENTER);
-        lblRenderPreview.setMinimumSize(new Dimension(250, 5));
-        lblRenderPreview.setPreferredSize(new Dimension(250, 5));
-        lblRenderPreview.setMaximumSize(new Dimension(250, Short.MAX_VALUE));
+        lblRenderPreview.setVerticalAlignment(SwingConstants.TOP);
+        lblRenderPreview.setMinimumSize(new Dimension(380, 5));
+        lblRenderPreview.setPreferredSize(new Dimension(380, 5));
+        lblRenderPreview.setMaximumSize(new Dimension(380, Short.MAX_VALUE));
         paneRenderPreview = new JPanel();
         paneRenderPreview.setLayout(new BoxLayout(paneRenderPreview, 
                                                   BoxLayout.Y_AXIS));
         btnPreviewRender.setAlignmentX(Component.CENTER_ALIGNMENT);
         lblRenderPreview.setAlignmentX(Component.CENTER_ALIGNMENT);
         paneRenderPreview.add(btnPreviewRender);
-        // paneRenderPreview.add(Box.createG)
+        paneRenderPreview.add(Box.createRigidArea(new Dimension(5, 5)));
         paneRenderPreview.add(lblRenderPreview);
-        // min = new Dimension(5, 5);
-        // pref = new Dimension(5, 5);
-        // max = new Dimension(5, Short.MAX_VALUE);
-        // paneRenderPreview.add(new Box.Filler(min, pref, max));
-        // paneRenderPreview.add(paneRenderPreviewPreview);
         paneRenderer.add(scrollCurrentRendererGUIControls, BorderLayout.CENTER);
         paneRenderer.add(paneRenderPreview, BorderLayout.LINE_END);
         cmbRenderers.addItem(r0.getDescription());
@@ -186,9 +187,16 @@ public class MainWindow extends JFrame {
             cmbRenderers.addItem(Main.getRenderer().getDescription());
         }
         cmbRenderers.addActionListener(e -> { rendererListSelectionChanged(); });
-        
+        btnSaveRendererSettings.addActionListener(e -> {
+            saveRendererSettings();
+        });
+        btnLoadRendererSettings.addActionListener(e -> {
+            loadRendererSettings();
+        });
         paneRendererControls.add(lblRenderer);
         paneRendererControls.add(cmbRenderers);
+        paneRendererControls.add(btnSaveRendererSettings);
+        paneRendererControls.add(btnLoadRendererSettings);
         // paneRendererControls.add(btnPreviewRender);
         
         lblImageSize = new JLabel();
@@ -209,8 +217,13 @@ public class MainWindow extends JFrame {
         paneImageSizeControls.add(btnChangeImageSize);
         paneImageSizeControls.add(Box.createRigidArea(new Dimension(5, 0)));
         paneImageSizeControls.add(lblImageSize);
-        paneRenderer.add(paneRendererControls, BorderLayout.PAGE_END);
-        paneRenderer.add(paneImageSizeControls, BorderLayout.PAGE_START);
+        paneFormatHeader = new JPanel();
+        paneFormatHeader.setLayout(new BoxLayout(paneFormatHeader, 
+                                   BoxLayout.Y_AXIS));
+        paneFormatHeader.add(paneRendererControls);
+        paneFormatHeader.add(paneImageSizeControls);
+        paneFormatHeader.add(Box.createRigidArea(new Dimension(5, 0)));
+        paneRenderer.add(paneFormatHeader, BorderLayout.PAGE_START);
         
         paneOutput.setLayout(new BoxLayout(paneOutput, BoxLayout.Y_AXIS));
         paneOutputHalf = new JPanel();
@@ -276,7 +289,7 @@ public class MainWindow extends JFrame {
         });
         
         paneOutputPDF.setToolTipText("Output a PDF document of the badges. " +
-                "Multiple badges will be placed in a page if they fit.");
+                "Multiple badges will be placed on a page if they fit");
         paneOutputPDF.add(Box.createRigidArea(new Dimension(5, 5)));
         paneOutputPDF.add(panePDFPageSize);
         paneOutputPDF.add(Box.createRigidArea(new Dimension(5, 5)));
@@ -307,7 +320,7 @@ public class MainWindow extends JFrame {
         });
         
         pack();
-        setSize(800, 600);
+        setSize(960, 600);
         setTitle("Mercury Badge Maker");
         
         this.addWindowListener(new WindowAdapter() {
@@ -502,6 +515,7 @@ public class MainWindow extends JFrame {
     
     private void rendererListSelectionChanged() {
         paneRenderer.removeAll();
+        paneFormatHeader.removeAll();
         switch(cmbRenderers.getSelectedIndex()) {
             case 0:
                 currentRenderer = r0;
@@ -517,9 +531,11 @@ public class MainWindow extends JFrame {
         scrollCurrentRendererGUIControls = new JScrollPane(paneCurrentRendererGUIControls);
         paneRenderer.add(scrollCurrentRendererGUIControls, BorderLayout.CENTER);
         paneRenderer.add(paneRenderPreview, BorderLayout.LINE_END);
-        paneRenderer.add(paneRendererControls, BorderLayout.PAGE_END);
-        paneRenderer.add(paneImageSizeControls, BorderLayout.PAGE_START);
-        paneRenderPreview.validate();
+        paneFormatHeader.add(paneRendererControls);
+        paneFormatHeader.add(paneImageSizeControls);
+        paneFormatHeader.add(Box.createRigidArea(new Dimension(5, 0)));
+        paneRenderer.add(paneFormatHeader, BorderLayout.PAGE_START);
+        paneRenderer.validate();
     }
     
     private void changeSize() {
@@ -598,9 +614,71 @@ public class MainWindow extends JFrame {
         preview.setWidth(width);
         preview.setProportion(height / width);
         preview.setResolution((int) dpi);
-        lblRenderPreview.setText("");
-        lblRenderPreview.setIcon(new ImageIcon(ImageTools.fastScale(
-                preview.getImage(currentRenderer), 250, 250)));        
+        lblRenderPreview.setIcon(null);
+        lblRenderPreview.setText("Rendering Preview...");
+        (new Thread(() -> {
+            BufferedImage scaledPreview = ImageTools.scale(
+                                          preview.getImage(currentRenderer), 
+                                          360, 360);
+            int w = scaledPreview.getWidth();
+            int h = scaledPreview.getHeight();
+            BufferedImage previewImage = new BufferedImage(w+4, h+4,
+                                         BufferedImage.TYPE_INT_ARGB);
+            Graphics2D g = previewImage.createGraphics();
+            g.setColor(Color.BLACK);
+            g.fillRect(0, 0, w+4, h+4);
+            g.setColor(Color.WHITE);
+            g.fillRect(1, 1, w+2, h+2);
+            g.drawImage(scaledPreview, 2, 2, null);
+            g.dispose();
+            Icon icon = new ImageIcon(previewImage);
+            SwingUtilities.invokeLater(() -> {
+                lblRenderPreview.setText("");
+                lblRenderPreview.setIcon(icon);        
+            });
+        })).start();
+    }
+    
+    private void saveRendererSettings() {
+        String file = GUI.browseForFile("Select Settings File");
+        if(file != null) {
+            float[] sizes = new float[5];
+            sizes[0] = width;
+            sizes[1] = height;
+            sizes[2] = dpi;
+            sizes[3] = cmbRenderers.getSelectedIndex();
+            sizes[4] = cmbUnits.getSelectedIndex();
+            IO.saveRendererSettings(currentRenderer, sizes, file);
+        }
+    }
+    
+    private void loadRendererSettings() {
+        String file = GUI.browseForFile("Select Settings File");
+        if(file != null) {
+            float[] sizes = IO.loadRendererSettings(file, r0, r1, Main.getRenderer());
+            if(sizes != null) {
+                width = sizes[0];
+                height = sizes[1];
+                dpi = sizes[2];
+                cmbRenderers.setSelectedIndex((int) sizes[3]);
+                units = (int) sizes[4];
+                cmbUnits.setSelectedIndex((int) sizes[4]);
+                updateImageSizeLabel();
+            }
+            rendererListSelectionChanged();
+        }
+    }
+    
+    public org.osumercury.badgemaker.Renderer getRenderer(int index) {
+        switch(index) {
+            default:
+            case 0:
+                return r0;
+            case 1:
+                return r1;
+            case 2:
+                return Main.getRenderer();
+        }
     }
     
     class ColorColumnCellRenderer extends JLabel implements TableCellRenderer {

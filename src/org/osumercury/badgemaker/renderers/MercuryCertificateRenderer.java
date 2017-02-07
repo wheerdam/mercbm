@@ -163,6 +163,45 @@ public class MercuryCertificateRenderer extends Renderer {
             Log.err("Failed to set property: " + key + ":" + value);
         }
     }
+    
+    @Override
+    public Object getProperty(String key) {
+        switch(key) {
+            case "font":                return font;
+            case "certification":       return textCertification;
+            case "participation":       return textParticipation;
+            case "advisor-name":        return textAdvisorName;
+            case "advisor-title":       return textAdvisorTitle;
+            case "president-name":      return textPresidentName;
+            case "president-title":     return textPresidentTitle;
+            case "competition-title":   return textCompetitionTitle;
+            case "host-title":          return textHostTitle;
+            case "host-institution":    return textHostInstitution;
+            case "date-and-location":   return textDateLocation;
+            case "path-to-logo":        return pathToLogo;
+            case "path-to-background":  return pathToBackground;
+            case "background-height":   return backgroundHeight;
+            case "text-background":     
+                return String.format("%06x", 
+                                     textBackgroundColor.getRGB() & 0xffffffL);
+            case "padding-top":         return topPadding;
+            case "main-text-height":    return mainTextHeight;
+            case "name-text-height":    return nameHeight;
+            case "institution-height":  return institutionHeight;
+            case "title-height":        return competitionTitleHeight;
+            case "date-text-height":    return dateLocationHeight;
+            case "staff-name-height":   return staffNamesHeight;
+            case "staff-title-height":  return staffTitleHeight;
+            case "signatures-position": return signaturesPosition;
+            case "logo-height":         return logoHeight;
+            case "major-spacing":       return majorSpacing;
+            case "minor-spacing":       return minorSpacing;
+            case "font-size-initial":   return originalFontSize;
+            default:
+                Log.err("Unknown property key: " + key);
+        }
+        return null;
+    }
 
     @Override
     public BufferedImage render(Badge badge) {
@@ -819,6 +858,7 @@ public class MercuryCertificateRenderer extends Renderer {
         pref = new Dimension(5, 5);
         max = new Dimension(5, Short.MAX_VALUE);
         pane.add(new Box.Filler(min, pref, max));
+        pane.setMaximumSize(new Dimension(500, Short.MAX_VALUE));
         // pane.setPreferredSize(new Dimension(500, 1000));
         return pane;
     }

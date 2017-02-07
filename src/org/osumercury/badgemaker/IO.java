@@ -477,5 +477,82 @@ public class IO {
             p.update();
         }
         return badges;
-    }    
+    }
+    
+    public static void saveRendererSettings(Renderer r, float[] sizes, 
+                                            String csvFile) {
+        FileWriter w = null;
+        CSVPrinter printer = null;
+        try {
+            w = new FileWriter(new File(csvFile));
+            CSVFormat format = CSVFormat.DEFAULT.withRecordSeparator("\n");
+            printer = new CSVPrinter(w, format);
+            String key;
+            int type;
+            Object value;
+            List<String> fields = new ArrayList<>();
+            fields.add(String.valueOf(sizes[0]));
+            fields.add(String.valueOf(sizes[1]));
+            fields.add(String.valueOf(sizes[2]));
+            fields.add(String.valueOf(sizes[3]));
+            fields.add(String.valueOf(sizes[4]));
+            printer.printRecord(fields);
+            for(Renderer.Property p : r.getValidProperties()) {
+                fields = new ArrayList<>();
+                key = p.getKey();
+                type = p.getType();
+                value = r.getProperty(key);
+                if(value == null) {
+                    continue;
+                }
+                fields.add(key);
+                fields.add(String.valueOf(type));
+                switch(type) {
+                    case Renderer.Property.FLOAT:   
+                        fields.add(String.valueOf((Float) value));
+                        break;
+                    case Renderer.Property.INTEGER:   
+                        fields.add(String.valueOf((Integer) value));
+                        break;
+                    case Renderer.Property.STRING:   
+                        fields.add((String) value);
+                        break;
+                }
+                printer.printRecord(fields);
+            }
+            w.flush();
+            w.close();
+            printer.close();
+        } catch(Exception e) {
+            Log.err("Failed to save renderer settings:\n" + e);
+        }
+    }
+    
+    public static float[] loadRendererSettings(String csvFile, Renderer...r) {
+        try {
+            float[] sizes = new float[5];
+            String csvString = new String(Files.readAllBytes(Paths.get(csvFile)));
+            CSVParser parser = CSVParser.parse(csvString, CSVFormat.DEFAULT);
+            List<CSVRecord> records = parser.getRecords();
+            int numRecord = 0;
+            int rendererIndex = 0;
+            for(CSVRecord record : records) {
+                if(numRecord == 0) {
+                    sizes[0] = Float.parseFloat(record.get(0));
+                    sizes[1] = Float.parseFloat(record.get(1));
+                    sizes[2] = Float.parseFloat(record.get(2));
+                    sizes[3] = Float.parseFloat(record.get(3));
+                    sizes[4] = Float.parseFloat(record.get(4));
+                    rendererIndex = (int) sizes[3];
+                } else {
+                    r[rendererIndex].setProperty(record.get(0), record.get(2));
+                }
+                numRecord++;
+            }
+            return sizes;
+        } catch(Exception e) {
+            Log.err("Failed to load renderer settings:\n" + e);
+        }
+        return null;
+    }
 }

@@ -43,8 +43,9 @@ public class TextInputPane extends JPanel {
         this.setLayout(new GridBagLayout());
         buttons = new JButton[buttonTitles.length];
         label = new JLabel(labelText);
-        text = new JTextField();
+        text = new JTextField(8);
         text.setEditable(editable);
+        // text.setMaximumSize(new Dimension(200, Short.MAX_VALUE));
         GridBagConstraints c = new GridBagConstraints();
         Dimension max;
         int i;

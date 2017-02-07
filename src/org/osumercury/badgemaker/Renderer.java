@@ -43,6 +43,11 @@ public abstract class Renderer {
         properties.add(new Property(key, type, defaultvalue, description));
     }
     
+    public Object getProperty(String key) {
+        // nothing by default
+        return null;
+    }
+    
     public JPanel getRendererGUIControls() {
         JPanel pane = new JPanel();
         JLabel lblNoGUI = new JLabel("This renderer does not have GUI controls");
