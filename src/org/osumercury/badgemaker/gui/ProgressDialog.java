@@ -46,6 +46,13 @@ public class ProgressDialog extends JDialog {
         Progress p = new Progress((callback) -> {
             pD.update();
         });
+        p.setCompletedCallback((callback) -> {
+            if(pD.isVisible()) {
+                SwingUtilities.invokeLater(() -> {
+                    pD.dispose();
+                });
+            }
+        });
         pD.init(p, title);
         pD.display();
         return p;
@@ -90,7 +97,9 @@ public class ProgressDialog extends JDialog {
     
     public void display() {
         SwingUtilities.invokeLater(() -> {
-           setVisible(true); 
+            if(!p.done && !p.cancel) {
+                setVisible(true); 
+            }
         });
     }
     

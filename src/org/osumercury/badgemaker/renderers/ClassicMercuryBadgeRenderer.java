@@ -303,35 +303,19 @@ public class ClassicMercuryBadgeRenderer extends Renderer {
         pane.add(paneOptions);
         pane.add(Box.createRigidArea(new Dimension(5, 5)));
         
-        final TextInputPane panePrimaryHeight = new
-                TextInputPane("Primary Text Height: ", 200, "Apply");
+        panePrimaryHeight = new TextInputPane("Primary Text Height: ", 200,
+                                              "Apply");
         panePrimaryHeight.setText(String.format("%.3f", primaryHeight));
         panePrimaryHeight.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
-        panePrimaryHeight.addAction(0, e ->  {
-            try {
-                float newPrimaryHeight = Float.parseFloat(
-                        panePrimaryHeight.getText());
-                primaryHeight = newPrimaryHeight;
-            } catch(NumberFormatException nfe) {
-                panePrimaryHeight.setText(String.format("%.3f", primaryHeight));
-            }
-        });
+        panePrimaryHeight.addAction(0, e ->  { applySettings(); });
         pane.add(panePrimaryHeight);
         pane.add(Box.createRigidArea(new Dimension(5, 5)));
         
-        final TextInputPane paneSecondaryHeight = new
-                TextInputPane("Secondary Text Height: ", 200, "Apply");
+        paneSecondaryHeight = new TextInputPane("Secondary Text Height: ", 200,
+                                                "Apply");
         paneSecondaryHeight.setText(String.format("%.3f", secondaryHeight));
         paneSecondaryHeight.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
-        paneSecondaryHeight.addAction(0, e ->  {
-            try {
-                float newSecondaryHeight = Float.parseFloat(
-                        paneSecondaryHeight.getText());
-                secondaryHeight = newSecondaryHeight;
-            } catch(NumberFormatException nfe) {
-                paneSecondaryHeight.setText(String.format("%.3f", secondaryHeight));
-            }
-        });
+        paneSecondaryHeight.addAction(0, e ->  { applySettings(); });
         pane.add(paneSecondaryHeight);
         
         min = new Dimension(5, 5);
@@ -340,5 +324,26 @@ public class ClassicMercuryBadgeRenderer extends Renderer {
         pane.add(new Box.Filler(min, pref, max));
         
         return pane;
+    }
+    
+    private TextInputPane panePrimaryHeight;
+    private TextInputPane paneSecondaryHeight;
+    
+    private void applySettings() {
+        try {
+            float newPrimaryHeight = Float.parseFloat(
+                    panePrimaryHeight.getText());
+            primaryHeight = newPrimaryHeight;
+        } catch(NumberFormatException nfe) {
+            panePrimaryHeight.setText(String.format("%.3f", primaryHeight));
+        }
+        
+        try {
+            float newSecondaryHeight = Float.parseFloat(
+                    paneSecondaryHeight.getText());
+            secondaryHeight = newSecondaryHeight;
+        } catch(NumberFormatException nfe) {
+            paneSecondaryHeight.setText(String.format("%.3f", secondaryHeight));
+        }
     }
 }

@@ -21,6 +21,7 @@ package org.osumercury.badgemaker;
  */
 public class Progress {
     private final ProgressCallback callback;
+    private ProgressCallback completeCallback;
 
     public Progress(ProgressCallback c) {
         this.callback = c;
@@ -28,6 +29,17 @@ public class Progress {
 
     public void update() {
         callback.callback(this);
+    }
+    
+    public void complete() {
+        done = true;
+        if(completeCallback != null) {
+            completeCallback.callback(this);
+        }
+    }
+    
+    public void setCompletedCallback(ProgressCallback c) {
+        completeCallback = c;
     }
 
     public volatile String text = "";

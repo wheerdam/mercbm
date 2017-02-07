@@ -57,8 +57,7 @@ public class IO {
         if(badges.isEmpty()) {
             Log.err("No badges to output");
             if(p != null) {
-                p.done = true;
-                p.update();
+                p.complete();
             }
             return;
         }
@@ -100,8 +99,7 @@ public class IO {
                         Log.err("Failed to close document "
                                            + ioe);
                     }
-                    p.done = true;
-                    p.update();
+                    p.complete();
                     Log.d(0, "CANCELLED");
                     return;
                 }
@@ -140,8 +138,7 @@ public class IO {
                     Log.err("Failed to get page content stream: "
                                        + ioe);
                     if(p != null) {
-                        p.done = true;
-                        p.update();
+                        p.complete();
                     }
                     return;
                 }
@@ -197,8 +194,7 @@ public class IO {
         }
         
         if(p != null) {
-            p.done = true;
-            p.update();
+            p.complete();
         }
     }
     
@@ -213,8 +209,7 @@ public class IO {
                 File outFile = new File(pngOutputDir + "/" + fileName);
                 if(p != null) {
                     if(p.cancel) {
-                        p.done = true;
-                        p.update();
+                        p.complete();
                         Log.d(0, "CANCELLED");
                         return;
                     }
@@ -238,8 +233,7 @@ public class IO {
         }
         
         if(p != null) {
-            p.done = true;
-            p.update();
+            p.complete();
         }
     }
         
@@ -254,8 +248,7 @@ public class IO {
                 File outFile = new File(jpgOutputDir + "/" + fileName);
                 if(p != null) {
                     if(p.cancel) {
-                        p.done = true;
-                        p.update();
+                        p.complete();
                         Log.d(0, "CANCELLED");
                         return;
                     }
@@ -280,8 +273,7 @@ public class IO {
         }
         
         if(p != null) {
-            p.done = true;
-            p.update();
+            p.complete();
         }
     }
     
@@ -300,8 +292,7 @@ public class IO {
                 String name = badge.number + "-" + badge.primaryText;
                 if(p != null) {
                     if(p.cancel) {
-                        p.done = true;
-                        p.update();
+                        p.complete();
                         w.close();
                         return;
                     }
@@ -355,8 +346,7 @@ public class IO {
         }
         
         if(p != null) {
-            p.done = true;
-            p.update();
+            p.complete();
         }
     }
     
@@ -380,8 +370,7 @@ public class IO {
             Log.err("Failed to parse " + csvFile);
         }
         if(p != null) {
-            p.done = true;
-            p.update();
+            p.complete();
         }
         return null;
     }
@@ -403,8 +392,7 @@ public class IO {
             for(CSVRecord record : records) {
                 if(p != null) {
                     if(p.cancel) {
-                        p.done = true;
-                        p.update();
+                        p.complete();
                         Log.d(0, "CANCELLED");
                         return badges;
                     }
@@ -414,6 +402,7 @@ public class IO {
                     p.update();
                 }
                 try {
+                    Log.d(1, record.toString());
                     background = null;
                     if(record.size() < 7) {
                         throw new IOException("invalid number of columns (" +
@@ -459,11 +448,9 @@ public class IO {
                     img.setResolution(resolution);
                     badges.add(img);
                 } catch(Exception e) {
-                    Log.err("Failed to parse record " + 
-                            recordNum + ": " + e);
+                    Log.err("Failed to parse record " + recordNum + ": " + e);
                     if(p != null) {
-                        p.done = true;
-                        p.update();
+                        p.complete();
                     }
                     return badges;
                 }
@@ -473,9 +460,9 @@ public class IO {
             Log.err("Error reading input file: " + e);
         }
         if(p != null) {
-            p.done = true;
-            p.update();
+            p.complete();
         }
+        Log.d(1, "Entries read: "  + badges.size());
         return badges;
     }
     

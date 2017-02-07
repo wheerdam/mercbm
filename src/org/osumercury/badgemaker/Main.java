@@ -72,6 +72,10 @@ public class Main {
                         case "--help":
                             usage();
                             System.exit(0);
+                        case "--debug":
+                            check(args, i , 1);
+                            Log.debugLevel = Integer.parseInt(args[++i]);
+                            break;
                         case "--certificate-renderer":
                             check(args, i, 1);
                             r = new MercuryCertificateRenderer();

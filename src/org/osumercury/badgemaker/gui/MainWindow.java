@@ -640,7 +640,7 @@ public class MainWindow extends JFrame {
     }
     
     private void saveRendererSettings() {
-        String file = GUI.browseForFile("Select Settings File");
+        String file = GUI.browseForFile("Save Settings");
         if(file != null) {
             float[] sizes = new float[5];
             sizes[0] = width;
@@ -653,7 +653,7 @@ public class MainWindow extends JFrame {
     }
     
     private void loadRendererSettings() {
-        String file = GUI.browseForFile("Select Settings File");
+        String file = GUI.browseForFile("Load Settings");
         if(file != null) {
             float[] sizes = IO.loadRendererSettings(file, r0, r1, Main.getRenderer());
             if(sizes != null) {

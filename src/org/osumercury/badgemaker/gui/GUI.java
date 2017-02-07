@@ -22,6 +22,7 @@ import javax.swing.*;
 import javax.swing.SwingUtilities;
 import org.osumercury.badgemaker.Badge;
 import org.osumercury.badgemaker.IO;
+import org.osumercury.badgemaker.Log;
 import org.osumercury.badgemaker.Progress;
 
 /**
@@ -37,13 +38,14 @@ public class GUI {
                 Progress p = ProgressDialog.create("Importing " + file);
                 List<Badge> badges = new ArrayList<>();
                 (new Thread(() -> {
-                    System.out.println("Importing...");
+                    Log.d(0, "Importing...");
                     badges.addAll(IO.readFromCSV(p, file,
                                   Badge.DEFAULT_WIDTH,
                                   Badge.DEFAULT_WIDTH*Badge.DEFAULT_PROPORTION,
                                   Badge.DEFAULT_RESOLUTION));
                     mainWindow.getBadgeList().addAll(badges);
                     mainWindow.populateInputTable();
+                    Log.d(0, "Import Completed");
                 })).start();
             }
             mainWindow.setVisible(true);
