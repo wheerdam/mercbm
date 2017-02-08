@@ -65,10 +65,14 @@ public class ProgressDialog extends JDialog {
         paneControls = new JPanel();
         text = new JLabel(" ");
         text.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        text.setMinimumSize(new Dimension(300, 30));
+        text.setPreferredSize(new Dimension(300, 30));
         setModal(true);
         setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
         progressBar.setMinimum(0);
         progressBar.setMaximum(1000);
+        progressBar.setMinimumSize(new Dimension(300, 50));
+        progressBar.setPreferredSize(new Dimension(300, 50));
         Container pane = this.getContentPane();
         pane.add(text, BorderLayout.PAGE_START);
         pane.add(Box.createRigidArea(new Dimension(5, 5)), 
@@ -86,7 +90,7 @@ public class ProgressDialog extends JDialog {
 
         pack();
         setTitle(title);
-        setSize(300, 100);
+        // setSize(300, 200);
         setLocationRelativeTo(null);
         initialized = true;
     }
