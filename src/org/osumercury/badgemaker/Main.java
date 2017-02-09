@@ -77,7 +77,6 @@ public class Main {
                             Log.debugLevel = Integer.parseInt(args[++i]);
                             break;
                         case "--certificate-renderer":
-                            check(args, i, 1);
                             r = new MercuryCertificateRenderer();
                             break;
                         case "--custom-renderer":
