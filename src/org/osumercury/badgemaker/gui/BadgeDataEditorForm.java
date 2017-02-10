@@ -17,6 +17,9 @@ package org.osumercury.badgemaker.gui;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -67,7 +70,7 @@ public class BadgeDataEditorForm extends JDialog {
         paneMain.setLayout(new BoxLayout(paneMain, BoxLayout.Y_AXIS));
         paneText = new JPanel();
         paneText.setLayout(new BoxLayout(paneText, BoxLayout.Y_AXIS));
-        paneNumber = new TextInputPane("Number ID: ", 120);
+        paneNumber = new TextInputPane("Number: ", 120);
         paneName = new TextInputPane("Name: ", 120);
         paneInstitution = new TextInputPane("Institution: ", 120);
         paneNumber.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
@@ -161,13 +164,16 @@ public class BadgeDataEditorForm extends JDialog {
         paneMain.add(paneBackground);
         paneMain.add(Box.createRigidArea(new Dimension(5 ,5)));
         String[] fit = {"fit width", "fit height"};
-        paneBackgroundFit = new ComboBoxPane("Background: ", fit, 100,
-                                             "Add", "Remove");
+        paneBackgroundFit = new ComboBoxPane("Picture: ", fit, 100,
+                                             "Browse", "Paste", "Remove");
         paneBackgroundFit.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
         paneBackgroundFit.addAction(0, e -> {
             importBackgroundFile();
         });
         paneBackgroundFit.addAction(1, e -> {
+            pasteImage();
+        });
+        paneBackgroundFit.addAction(2, e -> {
             updateBackgroundImage(null);
         });
         paneMain.add(paneBackgroundFit);
@@ -243,13 +249,14 @@ public class BadgeDataEditorForm extends JDialog {
         if(img == null) {
             scaledImg = new BufferedImage(300, 200, BufferedImage.TYPE_INT_ARGB);
             Graphics2D g = scaledImg.createGraphics();
-            String str = "No Background Image";
+            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                               RenderingHints.VALUE_ANTIALIAS_ON);
+            String str = "No Badge Picture";
             int strWidth = g.getFontMetrics().stringWidth(str);
             int strHeight = g.getFontMetrics().getHeight();
             int strDescent = g.getFontMetrics().getDescent();
             g.setColor(Color.BLACK);
-            g.fillRect(0, 0, 300, 200);
-            g.setColor(Color.WHITE);
+            g.drawRect(0, 0, 299, 199);
             g.drawString(str, (int)(300 / 2.0f - strWidth / 2.0f),
                               (int)(200 / 2.0f + strHeight / 2.0f - strDescent));
             g.dispose();
@@ -275,11 +282,32 @@ public class BadgeDataEditorForm extends JDialog {
             Log.err("Failed to read file: " + ioe);
         }
     }
+    
+    private void pasteImage() {
+        // http://alvinalexander.com/java/java-clipboard-image-copy-paste
+        Transferable transferable = Toolkit.getDefaultToolkit()
+                                    .getSystemClipboard().getContents(null);
+        if (transferable != null && 
+            transferable.isDataFlavorSupported(DataFlavor.imageFlavor)) {
+            try {
+                updateBackgroundImage((BufferedImage) transferable
+                                      .getTransferData(DataFlavor.imageFlavor));
+            } catch (UnsupportedFlavorException e) {
+                Log.err("Unable to paste image from the clipboard:\n" + e);
+            }
+            catch (IOException e) {
+                Log.err("Unable to paste image from the clipboard:\n" + e);
+            }
+        } else {
+            Log.err("Failed to paste from the clipboard:\nNot an image");
+        }
+    }
 
     private boolean apply() {
         // validate inputs
         if(paneNumber.getText().trim().equals("")) {
-            Log.err("A number ID is required");
+            Log.err("A number ID is required\nEnter '-1' if you don't want" +
+                    " a number to be rendered for this badge");
             return false;
         }
         int numID;

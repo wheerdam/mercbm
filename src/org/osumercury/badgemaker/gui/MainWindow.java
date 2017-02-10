@@ -47,11 +47,15 @@ public class MainWindow extends JFrame {
     private int units;
     
     private JTabbedPane tabs;
+    private JPanel paneAbout;
     private JPanel paneGlobal;
     private JPanel paneInput;
     private JPanel paneRenderer;
     private JPanel paneOutput;
     private JButton btnExit;
+    
+    private JScrollPane scrollAbout;
+    private JTextArea txtAbout;
     
     private JPanel paneInputControls;
     private JScrollPane scrollerTblInput;
@@ -105,12 +109,15 @@ public class MainWindow extends JFrame {
         this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         tabs = new JTabbedPane();
         paneGlobal = new JPanel();
+        paneAbout = new JPanel();
+        paneAbout.setName("About");
         paneInput = new JPanel();
         paneInput.setName("Input");
         paneRenderer = new JPanel();
         paneRenderer.setName("Format");
         paneOutput = new JPanel();
         paneOutput.setName("Output");
+        tabs.add(paneAbout);
         tabs.add(paneInput);
         tabs.add(paneRenderer);
         tabs.add(paneOutput);
@@ -119,6 +126,21 @@ public class MainWindow extends JFrame {
         btnExit = new JButton("Exit");
         paneGlobal.add(btnExit);
         pane.add(paneGlobal, BorderLayout.PAGE_END);
+        
+        txtAbout = new JTextArea();
+        txtAbout.setLineWrap(true);
+        txtAbout.setWrapStyleWord(true);
+        txtAbout.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 12));
+        txtAbout.setEditable(false);
+        txtAbout.setMargin(new Insets(15, 15, 15, 15));
+        txtAbout.setOpaque(true);
+        txtAbout.setBackground(Color.BLACK);
+        txtAbout.setForeground(new Color(0x20, 0xbb, 0xff));
+        txtAbout.setText(Main.getAboutString());
+        scrollAbout = new JScrollPane(txtAbout);
+        scrollAbout.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        paneAbout.setLayout(new BorderLayout());
+        paneAbout.add(scrollAbout, BorderLayout.CENTER);
         
         paneInput.setLayout(new BorderLayout());
         tblInput = new JTable();
@@ -319,6 +341,44 @@ public class MainWindow extends JFrame {
             exit(0);
         });
         
+        String keyAddAction = "ADD";
+        this.getRootPane().getActionMap().put(keyAddAction, new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(tabs.getSelectedIndex() == 1) {
+                    addBadge(null);
+                }
+            }
+        });
+        
+        String keyEditAction = "EDIT";
+        this.getRootPane().getActionMap().put(keyEditAction, new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(tabs.getSelectedIndex() == 1) {
+                    editBadge();
+                }
+            }
+        });
+        
+        String keyDuplicateAction = "DUPLICATE";
+        this.getRootPane().getActionMap().put(keyDuplicateAction, new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(tabs.getSelectedIndex() == 1) {
+                    duplicateBadge();
+                }
+            }
+        });
+        
+        InputMap im = this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_A, InputEvent.CTRL_DOWN_MASK), 
+               keyAddAction);
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_E, InputEvent.CTRL_DOWN_MASK), 
+               keyEditAction);
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_D, InputEvent.CTRL_DOWN_MASK), 
+               keyDuplicateAction);
+        
         pack();
         setSize(960, 600);
         setTitle("Mercury Badge Maker");
@@ -340,8 +400,8 @@ public class MainWindow extends JFrame {
                 }
             };
             String[] colNames = { "#", "Name", "Institution", "BG Color",
-                                  "Text BG Color", "Text Color", "BG File",
-                                  "BG Fit"};
+                                  "Text BG Color", "Text Color", "Picture",
+                                  "Picture Fit"};
             m.setColumnIdentifiers(colNames);
             for(Badge badge : badges) {
                 Object[] row = new Object[8];
