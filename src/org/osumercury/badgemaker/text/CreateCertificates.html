@@ -1,0 +1,89 @@
+<html>
+<head>
+<style>
+    body {
+        font-family: sans-serif;
+        font-size: 10px;
+    }
+    
+    h2 {
+        margin-bottom: 10px;
+        margin-top: 0px;
+    }
+    
+    h3 {
+        margin-bottom: 10px;
+        margin-top: 0px;
+    }
+    
+    p {
+        margin-bottom: 10px;
+        margin-top: 0px;
+    }
+    
+    hr {
+        margin-bottom: 10px;
+    }
+    
+    ul {
+        margin-top: 0px;
+        margin-bottom: 5px;
+    }
+    
+    li {
+        margin-bottom: 5px;
+    }
+</style>
+<head>
+<body>
+    <h2>Create Certificates</h2>
+    <p>The next step after data input is to specify the format
+        of the certificate by using the <em>Format</em> tab:</p>
+    <div align="center"><p><img src="format-cert.png" /></p></div>
+    <p>The <em>Mercury Certificate of Participation Renderer</em> must be selected.
+        The size can be specified by the controls on the second row. It is 
+        recommended to match these dimensions with the size of the paper that
+        the certificates will be printed on. For example, if you are going to
+        print the certificate on US Letter paper, specify the size as
+        11" x 8.5" with 300 dpi resolution.</p>
+    <p>The certificate then can be formatted by entering the different sentences, 
+        names, and titles that are going to be printed, selecting the font to use, and the
+        height of various text in proportion to the page height. After clicking <em>Apply</em> if
+        a parameter is modified, click on <em>Preview</em> to see how the certificate 
+        template will look like (the name and institution will be replaced with
+        the participants').</p>
+    <p>As shown in the example, the certificate renderer can place a logo on the
+        end of the page and a background picture. Leave the <em>Path to Logo Image</em>
+        or <em>Path to Background Image</em> fields empty if they are not desired.</p>
+    <h3>Output</h3>
+    <p>After the format for the certificates is specified. Click on the output tab:</p>
+    <div align="center"><p><img src="output-cert.png" /></p></div>
+    <p>The program can output three different file formats for the certificates</p>
+    <ul>
+        <li>PDF Output</li>
+        <li>Collection of PNG images</li>
+        <li>Collection of JPG images</li>
+    </ul>
+    <p>In PDF Output, specify the page size and orientation that match with
+        the certificate size from the <em>Format</em> tab. Enter 0 for margins
+        and spacing so the certificate image will fill the whole page. Once done, 
+        enter the name of the file to output or click <em>Browse</em> to browse
+        your computer and specify a file name, then click <em>Save</em> to 
+        generate the PDF file with each page bearing a certificate.</p>
+    <p>The PNG and JPG Outputs will write a collection of PNG or JPG images
+        in the specified directory. Multiple certificates that share the same
+        number and name will only have a single image output. The size of the
+        images are calculated using the certificate size and resolution specified in
+        the <em>Format</em> tab.</p>
+    <p>The file names will be output as <em>Number</em>-<em>Name</em>.png/.jpg</p>
+    <h3>Background Color</h3>
+    <p>The certificate renderer honors the <em>Background</em> color setting of
+        a data entry. If some of the certificates seem to have dark background,
+        make sure that they have the desired <em>Background</em> color in the
+        <em>Input</em> tab.</p>
+    <hr />
+    <p><a href="Help.html">Home</a></p>
+</body>
+</head>
+</html>
+

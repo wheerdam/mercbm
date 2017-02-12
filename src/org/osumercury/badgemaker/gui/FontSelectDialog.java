@@ -107,16 +107,13 @@ public class FontSelectDialog extends JDialog {
         pane.add(listScroller);
         pane.add(paneButtons);
         
-        String keyEscape = "ESCAPE";
-        this.getRootPane().getActionMap().put(keyEscape, new AbstractAction() {
+        GUI.attachKeyShortcut(this, KeyEvent.VK_ESCAPE, 0,
+                new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 dispose();
             }
         });
-        
-        InputMap im = this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
-        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), keyEscape);
         
         pack();
     }

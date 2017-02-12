@@ -90,4 +90,32 @@ public class GUI {
         JOptionPane.showMessageDialog(parent, message, title,
                                       JOptionPane.INFORMATION_MESSAGE);
     }
+    
+    public static void attachKeyShortcut(JFrame window,
+                                         int keyCode, int modifier,
+                                         AbstractAction a) {
+        String actionKey = "key-" + keyCode + "-mod-" + modifier;
+        ActionMap actionMap = window.getRootPane().getActionMap();
+        if(actionMap.get(actionKey) != null) {
+            Log.d(0, "Warning: key-action map already defined");
+        }
+        actionMap.put(actionKey, a);
+        InputMap inputMap = window.getRootPane().getInputMap(
+                                JComponent.WHEN_IN_FOCUSED_WINDOW);
+        inputMap.put(KeyStroke.getKeyStroke(keyCode, modifier), actionKey);
+    }
+    
+    public static void attachKeyShortcut(JDialog window,
+                                         int keyCode, int modifier,
+                                         AbstractAction a) {
+        String actionKey = "key-" + keyCode + "-mod-" + modifier;
+        ActionMap actionMap = window.getRootPane().getActionMap();
+        if(actionMap.get(actionKey) != null) {
+            Log.d(0, "Warning: key-action map already defined");
+        }
+        actionMap.put(actionKey, a);
+        InputMap inputMap = window.getRootPane().getInputMap(
+                                JComponent.WHEN_IN_FOCUSED_WINDOW);
+        inputMap.put(KeyStroke.getKeyStroke(keyCode, modifier), actionKey);
+    }
 }

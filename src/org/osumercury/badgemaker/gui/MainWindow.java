@@ -46,23 +46,21 @@ public class MainWindow extends JFrame {
     private float dpi;
     private int units;
     
+    private HelpWindow helpWindow;
     private JTabbedPane tabs;
-    private JPanel paneAbout;
     private JPanel paneGlobal;
     private JPanel paneInput;
     private JPanel paneRenderer;
     private JPanel paneOutput;
     private JButton btnExit;
-    
-    private JScrollPane scrollAbout;
-    private JTextArea txtAbout;
+    private JButton btnHelp;    
     
     private JPanel paneInputControls;
     private JScrollPane scrollerTblInput;
     private JTable tblInput;
     private JButton btnImport;
     private JButton btnExport;
-    private JButton btnAddEntry;
+    private JButton btnNew;
     private JButton btnEditEntry;
     private JButton btnDuplicateEntry;
     private JButton btnDeleteEntry;
@@ -109,38 +107,26 @@ public class MainWindow extends JFrame {
         this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         tabs = new JTabbedPane();
         paneGlobal = new JPanel();
-        paneAbout = new JPanel();
-        paneAbout.setName("About");
         paneInput = new JPanel();
         paneInput.setName("Input");
         paneRenderer = new JPanel();
         paneRenderer.setName("Format");
         paneOutput = new JPanel();
         paneOutput.setName("Output");
-        tabs.add(paneAbout);
         tabs.add(paneInput);
         tabs.add(paneRenderer);
         tabs.add(paneOutput);
         Container pane = this.getContentPane();
         pane.add(tabs, BorderLayout.CENTER);
         btnExit = new JButton("Exit");
+        btnHelp = new JButton("Help");
+        helpWindow = new HelpWindow();
+        helpWindow.init();
+        btnHelp.addActionListener((e) -> { showAboutWindow(); });
+        btnExit.addActionListener((e) -> { exit(0); });
+        paneGlobal.add(btnHelp);
         paneGlobal.add(btnExit);
         pane.add(paneGlobal, BorderLayout.PAGE_END);
-        
-        txtAbout = new JTextArea();
-        txtAbout.setLineWrap(true);
-        txtAbout.setWrapStyleWord(true);
-        txtAbout.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 12));
-        txtAbout.setEditable(false);
-        txtAbout.setMargin(new Insets(15, 15, 15, 15));
-        txtAbout.setOpaque(true);
-        txtAbout.setBackground(Color.BLACK);
-        txtAbout.setForeground(new Color(0x20, 0xbb, 0xff));
-        txtAbout.setText(Main.getAboutString());
-        scrollAbout = new JScrollPane(txtAbout);
-        scrollAbout.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        paneAbout.setLayout(new BorderLayout());
-        paneAbout.add(scrollAbout, BorderLayout.CENTER);
         
         paneInput.setLayout(new BorderLayout());
         tblInput = new JTable();
@@ -148,13 +134,16 @@ public class MainWindow extends JFrame {
         paneInput.add(scrollerTblInput, BorderLayout.CENTER);
         btnImport = new JButton("Load Data");
         btnExport = new JButton("Save Data");
-        btnAddEntry = new JButton("Add");
-        btnAddEntry.setFont(new Font(Font.DIALOG, Font.BOLD, 14));
-        btnAddEntry.addActionListener(e -> { addBadge(null); });
+        btnNew = new JButton("New");
+        btnNew.setFont(new Font(Font.DIALOG, Font.BOLD, 14));
+        btnNew.addActionListener(e -> { addBadge(null); });
+        btnNew.setToolTipText("CTRL+N");
         btnEditEntry = new JButton("Edit");
         btnEditEntry.addActionListener(e -> { editBadge(); });
+        btnEditEntry.setToolTipText("CTRL+E");
         btnDuplicateEntry = new JButton("Duplicate");
         btnDuplicateEntry.addActionListener(e -> { duplicateBadge(); });
+        btnDuplicateEntry.setToolTipText("CTRL+D");
         btnDeleteEntry = new JButton("Delete");
         btnDeleteEntry.addActionListener(e -> { deleteInputEntry(); });
         btnClear = new JButton("Clear");
@@ -164,7 +153,7 @@ public class MainWindow extends JFrame {
         btnImport.addActionListener(e -> { importCSV(); });
         btnExport.addActionListener(e -> { exportCSV(); });
         paneInputControls = new JPanel(new FlowLayout(FlowLayout.LEADING));
-        paneInputControls.add(btnAddEntry);
+        paneInputControls.add(btnNew);
         paneInputControls.add(btnEditEntry);
         paneInputControls.add(btnDuplicateEntry);
         paneInputControls.add(Box.createRigidArea(new Dimension(5, 0)));
@@ -336,48 +325,60 @@ public class MainWindow extends JFrame {
         pref = new Dimension(5, 5);
         max = new Dimension(5, Short.MAX_VALUE);
         paneOutput.add(new Box.Filler(min, pref, max));
-        
-        btnExit.addActionListener((ActionEvent e) -> {
-            exit(0);
-        });
-        
-        String keyAddAction = "ADD";
-        this.getRootPane().getActionMap().put(keyAddAction, new AbstractAction() {
+                
+        GUI.attachKeyShortcut(this, KeyEvent.VK_N, InputEvent.CTRL_DOWN_MASK,
+                new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(tabs.getSelectedIndex() == 1) {
+                if(tabs.getSelectedIndex() == 0) {
                     addBadge(null);
                 }
             }
         });
-        
-        String keyEditAction = "EDIT";
-        this.getRootPane().getActionMap().put(keyEditAction, new AbstractAction() {
+
+        GUI.attachKeyShortcut(this, KeyEvent.VK_E, InputEvent.CTRL_DOWN_MASK,
+                new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(tabs.getSelectedIndex() == 1) {
+                if(tabs.getSelectedIndex() == 0) {
                     editBadge();
                 }
             }
         });
         
-        String keyDuplicateAction = "DUPLICATE";
-        this.getRootPane().getActionMap().put(keyDuplicateAction, new AbstractAction() {
+        GUI.attachKeyShortcut(this, KeyEvent.VK_D, InputEvent.CTRL_DOWN_MASK,
+                new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(tabs.getSelectedIndex() == 1) {
+                if(tabs.getSelectedIndex() == 0) {
                     duplicateBadge();
                 }
             }
         });
         
-        InputMap im = this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
-        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_A, InputEvent.CTRL_DOWN_MASK), 
-               keyAddAction);
-        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_E, InputEvent.CTRL_DOWN_MASK), 
-               keyEditAction);
-        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_D, InputEvent.CTRL_DOWN_MASK), 
-               keyDuplicateAction);
+        GUI.attachKeyShortcut(this, KeyEvent.VK_1, InputEvent.CTRL_DOWN_MASK,
+                new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                tabs.setSelectedIndex(0);
+            }
+        });
+        
+        GUI.attachKeyShortcut(this, KeyEvent.VK_2, InputEvent.CTRL_DOWN_MASK,
+                new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                tabs.setSelectedIndex(1);
+            }
+        });
+        
+        GUI.attachKeyShortcut(this, KeyEvent.VK_3, InputEvent.CTRL_DOWN_MASK,
+                new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                tabs.setSelectedIndex(2);
+            }
+        });
         
         pack();
         setSize(960, 600);
@@ -739,6 +740,10 @@ public class MainWindow extends JFrame {
             case 2:
                 return Main.getRenderer();
         }
+    }
+    
+    private void showAboutWindow() {
+        helpWindow.display(this);
     }
     
     class ColorColumnCellRenderer extends JLabel implements TableCellRenderer {

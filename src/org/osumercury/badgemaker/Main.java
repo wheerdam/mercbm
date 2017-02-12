@@ -337,29 +337,7 @@ public class Main {
                                p.getDescription());
         }
     }
-    
-    public static String getAboutString() {
-        String about;
-        about  = "Mercury Badge Maker version 0.2\n"
-               + "Copyright (c)2017 Carl D. Latino and Wira D. Mulia\n"
-               + "\n"
-               + "Licensed under the Apache License, Version 2.0 (the \"License\")\n"
-               + "You may obtain a copy of the License at\n"
-               + "\n"
-               + "    http://www.apache.org/licenses/LICENSE-2.0\n"
-               + "\n"
-               + "Unless required by applicable law or agreed to in writing, software\n"
-               + "distributed under the License is distributed on an \"AS IS\" BASIS,\n"
-               + "WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n"
-               + "See the License for the specific language governing permissions and\n"
-               + "limitations under the License.\n"
-               + "\n"
-               + "Main developer: Wira (wheerdam@gmail.com)\n"
-               + "http://mercury.okstate.edu\n"
-               + "";
-        return about;
-    }
-    
+
     static class CustomClassLoader extends ClassLoader {
         public Class loadClass(String name, String path) {
             Class c = null;

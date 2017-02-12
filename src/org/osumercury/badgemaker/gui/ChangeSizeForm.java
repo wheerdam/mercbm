@@ -71,6 +71,14 @@ public class ChangeSizeForm extends JDialog {
         paneGlobalControls.add(btnCancel);
         pane.add(paneGlobalControls, BorderLayout.PAGE_END);
         
+        GUI.attachKeyShortcut(this, KeyEvent.VK_ESCAPE, 0,
+                new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dispose();
+            }
+        });
+        
         pack();
         setTitle("Change Size");
         setLocationRelativeTo(parent);
