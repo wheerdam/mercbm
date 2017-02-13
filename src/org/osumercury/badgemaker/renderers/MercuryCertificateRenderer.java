@@ -220,7 +220,7 @@ public class MercuryCertificateRenderer extends Renderer {
             try{
                 background = ImageIO.read(new File(pathToBackground));
             } catch(IOException ioe) {
-                Log.err("Failed to load " + pathToLogo);
+                Log.err("Failed to load background image: " + pathToBackground);
             }
         }
         
@@ -236,7 +236,7 @@ public class MercuryCertificateRenderer extends Renderer {
             try{
                 logo = ImageIO.read(new File(pathToLogo));
             } catch(IOException ioe) {
-                Log.err("Failed to load " + pathToLogo);
+                Log.err("Failed to load logo image: " + pathToLogo);
             }
         }
         
@@ -646,8 +646,18 @@ public class MercuryCertificateRenderer extends Renderer {
                 panePathToBackground.setText(path);
             }
         });
+        
         panePathToBackground.addAction(1, e ->  { applySettings(); });
         pane.add(panePathToBackground);
+        pane.add(Box.createRigidArea(new Dimension(5, 5)));
+        
+        paneTextBackgroundColor = new TextInputPane("Name Background Color: ",  
+                                                 200, "Apply");
+        paneTextBackgroundColor.setText(String.format("%06x", 
+                textBackgroundColor.getRGB() & 0xffffffL));
+        paneTextBackgroundColor.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
+        paneTextBackgroundColor.addAction(0, e ->  { applySettings(); });
+        pane.add(paneTextBackgroundColor);
         pane.add(Box.createRigidArea(new Dimension(5, 5)));
 
         paneMainTextHeight = new
@@ -756,6 +766,7 @@ public class MercuryCertificateRenderer extends Renderer {
     private TextInputPane panePresidentTitle;
     private TextInputPane panePathToLogo;
     private TextInputPane panePathToBackground;
+    private TextInputPane paneTextBackgroundColor;
     private TextInputPane paneMainTextHeight;
     private TextInputPane paneNameHeight;
     private TextInputPane paneInstitutionHeight;
@@ -780,7 +791,13 @@ public class MercuryCertificateRenderer extends Renderer {
         textPresidentName = panePresidentName.getText();
         textPresidentTitle = panePresidentTitle.getText();
         pathToLogo = panePathToLogo.getText();
+        if(pathToLogo.trim().equals("")) {
+            pathToLogo = null;
+        }
         pathToBackground = panePathToBackground.getText();
+        if(pathToBackground.trim().equals("")) {
+            pathToBackground = null;
+        }
         
         try {
             float newMainTextHeight = Float.parseFloat(
@@ -868,6 +885,15 @@ public class MercuryCertificateRenderer extends Renderer {
             signaturesPosition = newSignaturesPosition;
         } catch(NumberFormatException nfe) {
             paneSignaturesPosition.setText(String.format("%.3f", signaturesPosition));
+        }
+        
+        try {
+            int rgb = (int) (Integer.parseInt(
+                    paneTextBackgroundColor.getText(), 16) & 0xffffffL);
+            textBackgroundColor = new Color(rgb);
+        } catch(NumberFormatException nfe) {
+            paneTextBackgroundColor.setText(String.format("%06x", 
+                    textBackgroundColor.getRGB() & 0xffffffL));
         }
     }
 
