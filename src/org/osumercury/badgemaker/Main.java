@@ -267,7 +267,7 @@ public class Main {
                 + "\n"
                 + "INPUT: use '--' prior to INPUT if file name begins with a '-', use the '-i'\n"
                 + "option for non-interactive command line interface. If either INPUT is\n"
-                + "ommited *or* '-i' is ommited while INPUT is given, the GUI will start\n"
+                + "omitted *or* '-i' is omitted while INPUT is given, the GUI will start\n"
                 + "\n"
                 + "   Column 1              number (-1 if not desired)\n"
                 + "   Column 2              primary text / name\n"
