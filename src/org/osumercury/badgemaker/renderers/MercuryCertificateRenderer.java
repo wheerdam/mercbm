@@ -22,8 +22,8 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import org.osumercury.badgemaker.*;
 import org.osumercury.badgemaker.gui.GUI;
 import org.osumercury.badgemaker.gui.MainWindow;
@@ -545,205 +545,195 @@ public class MercuryCertificateRenderer extends Renderer {
         pane.add(paneFont);
         pane.add(Box.createRigidArea(new Dimension(5, 5)));
         
-        paneCertification = new TextInputPane("Certification Preamble: ", 200,
-                                              "Apply");
+        paneButtonApply1 = new JPanel();
+        btnApply1 = new JButton("Apply");
+        btnApply1.addActionListener((e) -> { applySettings(); } );
+        paneButtonApply1.add(btnApply1);
+        pane.add(paneButtonApply1);
+        pane.add(Box.createRigidArea(new Dimension(5, 5)));
+        
+        paneCertification = new TextInputPane("Certification Preamble: ", 200);
         paneCertification.setText(textCertification);
         paneCertification.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
-        paneCertification.addAction(0, e ->  { applySettings(); });
         pane.add(paneCertification);
         pane.add(Box.createRigidArea(new Dimension(5, 5)));
         
-        paneParticipation = new TextInputPane("Participation Preamble: ", 200,
-                                              "Apply");
+        paneParticipation = new TextInputPane("Participation Preamble: ", 200);
         paneParticipation.setText(textParticipation);
         paneParticipation.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
-        paneParticipation.addAction(0, e ->  { applySettings(); });
         pane.add(paneParticipation);
         pane.add(Box.createRigidArea(new Dimension(5, 5)));
         
-        paneCompetitionTitle = new TextInputPane("Competition Title: ", 200, 
-                                                 "Apply");
+        paneCompetitionTitle = new TextInputPane("Competition Title: ", 200);
         paneCompetitionTitle.setText(textCompetitionTitle);
         paneCompetitionTitle.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
-        paneCompetitionTitle.addAction(0, e ->  { applySettings(); });
         pane.add(paneCompetitionTitle);
         pane.add(Box.createRigidArea(new Dimension(5, 5)));
         
-        paneHostTitle = new TextInputPane("Competition Host Title: ", 200, 
-                                          "Apply");
+        paneHostTitle = new TextInputPane("Competition Host Title: ", 200);
         paneHostTitle.setText(textHostTitle);
         paneHostTitle.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
-        paneHostTitle.addAction(0, e ->  { applySettings(); });
         pane.add(paneHostTitle);
         pane.add(Box.createRigidArea(new Dimension(5, 5)));
         
         paneHostInstitution = new TextInputPane("Competition Host Institution: ",
-                                                200, "Apply");
+                                                200);
         paneHostInstitution.setText(textHostInstitution);
         paneHostInstitution.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
-        paneHostInstitution.addAction(0, e ->  { applySettings(); });
         pane.add(paneHostInstitution);
         pane.add(Box.createRigidArea(new Dimension(5, 5)));
         
-        paneDateLocation = new TextInputPane("Date and Location: ", 200, 
-                                             "Apply");
+        paneDateLocation = new TextInputPane("Date and Location: ", 200);
         paneDateLocation.setText(textDateLocation);
         paneDateLocation.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
-        paneDateLocation.addAction(0, e ->  { applySettings(); });
         pane.add(paneDateLocation);
         pane.add(Box.createRigidArea(new Dimension(5, 5)));
         
-        paneAdvisorName = new TextInputPane("Advisor Name: ", 200, "Apply");
+        paneAdvisorName = new TextInputPane("Advisor Name: ", 200);
         paneAdvisorName.setText(textAdvisorName);
         paneAdvisorName.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
-        paneAdvisorName.addAction(0, e ->  { applySettings(); });
         pane.add(paneAdvisorName);
         pane.add(Box.createRigidArea(new Dimension(5, 5)));
         
-        paneAdvisorTitle = new TextInputPane("Advisor Title: ", 200, "Apply");
+        paneAdvisorTitle = new TextInputPane("Advisor Title: ", 200);
         paneAdvisorTitle.setText(textAdvisorTitle);
         paneAdvisorTitle.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
-        paneAdvisorTitle.addAction(0, e ->  { applySettings(); });
         pane.add(paneAdvisorTitle);
         pane.add(Box.createRigidArea(new Dimension(5, 5)));
         
-        panePresidentName = new TextInputPane("President Name: ", 200, "Apply");
+        panePresidentName = new TextInputPane("President Name: ", 200);
         panePresidentName.setText(textPresidentName);
         panePresidentName.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
-        panePresidentName.addAction(0, e ->  { applySettings(); });
         pane.add(panePresidentName);
         pane.add(Box.createRigidArea(new Dimension(5, 5)));
         
-        panePresidentTitle = new TextInputPane("President Title: ", 200, 
-                                               "Apply");
+        panePresidentTitle = new TextInputPane("President Title: ", 200);
         panePresidentTitle.setText(textPresidentTitle);
         panePresidentTitle.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
-        panePresidentTitle.addAction(0, e ->  { applySettings(); });
         pane.add(panePresidentTitle);
         pane.add(Box.createRigidArea(new Dimension(5, 5)));
         
         panePathToLogo = new TextInputPane("Path to Logo Image: ", 200, 
-                                           "Browse", "Apply");
+                                           "Browse");
         panePathToLogo.setText(pathToLogo);
         panePathToLogo.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
         panePathToLogo.addAction(0, e ->  {
             String path = GUI.browseForFile("Select Image File");
             if(path != null) {
                 panePathToLogo.setText(path);
+                applySettings();
             }
         });
-        panePathToLogo.addAction(1, e ->  { applySettings(); });
         pane.add(panePathToLogo);
         pane.add(Box.createRigidArea(new Dimension(5, 5)));
         
-        panePathToBackground = new TextInputPane("Path to Backgorund Image: ",  
-                                                 200, "Browse", "Apply");
+        panePathToBackground = new TextInputPane("Path to Background Image: ",  
+                                                 200, "Browse");
         panePathToBackground.setText(pathToBackground);
         panePathToBackground.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
         panePathToBackground.addAction(0, e ->  {
             String path = GUI.browseForFile("Select Image File");
             if(path != null) {
                 panePathToBackground.setText(path);
+                applySettings();
             }
         });
-        
-        panePathToBackground.addAction(1, e ->  { applySettings(); });
         pane.add(panePathToBackground);
         pane.add(Box.createRigidArea(new Dimension(5, 5)));
         
+        paneButtonApply2 = new JPanel();
+        btnApply2 = new JButton("Apply");
+        btnApply2.addActionListener((e) -> { applySettings(); } );
+        paneButtonApply2.add(btnApply2);
+        pane.add(paneButtonApply2);
+        pane.add(Box.createRigidArea(new Dimension(5, 5)));
+        
         paneTextBackgroundColor = new TextInputPane("Name Background Color: ",  
-                                                 200, "Apply");
+                                                 200);
         paneTextBackgroundColor.setText(String.format("%06x", 
                 textBackgroundColor.getRGB() & 0xffffffL));
         paneTextBackgroundColor.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
-        paneTextBackgroundColor.addAction(0, e ->  { applySettings(); });
         pane.add(paneTextBackgroundColor);
         pane.add(Box.createRigidArea(new Dimension(5, 5)));
 
         paneMainTextHeight = new
-                TextInputPane("Main Text Height: ", 200, "Apply");
+                TextInputPane("Main Text Height: ", 200);
         paneMainTextHeight.setText(String.format("%.3f", mainTextHeight));
         paneMainTextHeight.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
-        paneMainTextHeight.addAction(0, e ->  { applySettings(); });
         pane.add(paneMainTextHeight);
         pane.add(Box.createRigidArea(new Dimension(5, 5)));
         
-        paneNameHeight = new TextInputPane("Team Name Height: ", 200, "Apply");
+        paneNameHeight = new TextInputPane("Team Name Height: ", 200);
         paneNameHeight.setText(String.format("%.3f", nameHeight));
         paneNameHeight.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
-        paneNameHeight.addAction(0, e ->  {});
         pane.add(paneNameHeight);
         pane.add(Box.createRigidArea(new Dimension(5, 5)));
         
         paneInstitutionHeight = new TextInputPane("Team Institution Height: ", 
-                                                  200, "Apply");
+                                                  200);
         paneInstitutionHeight.setText(String.format("%.3f", institutionHeight));
         paneInstitutionHeight.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
-        paneInstitutionHeight.addAction(0, e ->  { applySettings(); });
         pane.add(paneInstitutionHeight);
         pane.add(Box.createRigidArea(new Dimension(5, 5)));
         
         paneCompetitionTitleHeight = new
-                TextInputPane("Competition Title Height: ", 200, "Apply");
+                TextInputPane("Competition Title Height: ", 200);
         paneCompetitionTitleHeight.setText(String.format("%.3f", competitionTitleHeight));
         paneCompetitionTitleHeight.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
-        paneCompetitionTitleHeight.addAction(0, e ->  { applySettings(); });
         pane.add(paneCompetitionTitleHeight);
         pane.add(Box.createRigidArea(new Dimension(5, 5)));
         
         paneDateLocationHeight = new
-                TextInputPane("Date and Location Height: ", 200, "Apply");
+                TextInputPane("Date and Location Height: ", 200);
         paneDateLocationHeight.setText(String.format("%.3f", dateLocationHeight));
         paneDateLocationHeight.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
-        paneDateLocationHeight.addAction(0, e ->  { applySettings(); });
         pane.add(paneDateLocationHeight);
         pane.add(Box.createRigidArea(new Dimension(5, 5)));
         
-        paneLogoHeight = new TextInputPane("Competition Logo Height: ", 200,
-                                           "Apply");
+        paneLogoHeight = new TextInputPane("Competition Logo Height: ", 200);
         paneLogoHeight.setText(String.format("%.3f", logoHeight));
         paneLogoHeight.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
-        paneLogoHeight.addAction(0, e ->  { applySettings(); });
         pane.add(paneLogoHeight);
         pane.add(Box.createRigidArea(new Dimension(5, 5)));
         
         paneBackgroundHeight = new TextInputPane("Team Background Height: ",
-                                                 200, "Apply");
+                                                 200);
         paneBackgroundHeight.setText(String.format("%.3f", backgroundHeight));
         paneBackgroundHeight.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
-        paneBackgroundHeight.addAction(0, e ->  { applySettings(); });
         pane.add(paneBackgroundHeight);
         pane.add(Box.createRigidArea(new Dimension(5, 5)));
         
-        paneMajorSpacing = new TextInputPane("Major Spacing: ", 200, "Apply");
+        paneMajorSpacing = new TextInputPane("Major Spacing: ", 200);
         paneMajorSpacing.setText(String.format("%.3f", majorSpacing));
         paneMajorSpacing.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
-        paneMajorSpacing.addAction(0, e ->  { applySettings(); });
         pane.add(paneMajorSpacing);
         pane.add(Box.createRigidArea(new Dimension(5, 5)));
         
         paneMinorSpacing = new
-                TextInputPane("Minor Spacing: ", 200, "Apply");
+                TextInputPane("Minor Spacing: ", 200);
         paneMinorSpacing.setText(String.format("%.3f", minorSpacing));
         paneMinorSpacing.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
-        paneMinorSpacing.addAction(0, e ->  { applySettings(); });
         pane.add(paneMinorSpacing);
         pane.add(Box.createRigidArea(new Dimension(5, 5)));
         
-        paneTopPadding = new TextInputPane("Top Padding: ", 200, "Apply");
+        paneTopPadding = new TextInputPane("Top Padding: ", 200);
         paneTopPadding.setText(String.format("%.3f", topPadding));
         paneTopPadding.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
-        paneTopPadding.addAction(0, e ->  { applySettings(); });
         pane.add(paneTopPadding);
         pane.add(Box.createRigidArea(new Dimension(5, 5)));
         
-        paneSignaturesPosition = new TextInputPane("Signatures Position: ", 200,
-                                                   "Apply");
+        paneSignaturesPosition = new TextInputPane("Signatures Position: ", 200);
         paneSignaturesPosition.setText(String.format("%.3f", signaturesPosition));
         paneSignaturesPosition.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
-        paneSignaturesPosition.addAction(0, e ->  { applySettings(); });
         pane.add(paneSignaturesPosition);
-        pane.add(Box.createRigidArea(new Dimension(5, 5)));                
+        pane.add(Box.createRigidArea(new Dimension(5, 5)));
+        
+        paneButtonApply3 = new JPanel();
+        btnApply3 = new JButton("Apply");
+        btnApply3.addActionListener((e) -> { applySettings(); } );
+        paneButtonApply3.add(btnApply3);
+        pane.add(paneButtonApply3);
+        pane.add(Box.createRigidArea(new Dimension(5, 5)));
         
         min = new Dimension(5, 5);
         pref = new Dimension(5, 5);
@@ -754,6 +744,12 @@ public class MercuryCertificateRenderer extends Renderer {
         return pane;
     }
     
+    private JPanel paneButtonApply1;
+    private JPanel paneButtonApply2;
+    private JPanel paneButtonApply3;
+    private JButton btnApply1;
+    private JButton btnApply2;
+    private JButton btnApply3;
     private TextInputPane paneCertification;
     private TextInputPane paneParticipation;
     private TextInputPane paneCompetitionTitle;

@@ -24,6 +24,7 @@ import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JPanel;
 import org.osumercury.badgemaker.*;
 import org.osumercury.badgemaker.gui.MainWindow;
@@ -55,8 +56,8 @@ public class ClassicMercuryBadgeRenderer extends Renderer {
         addProperty("secondary-height", Property.FLOAT, String.format("%.3f", secondaryHeight),
                     "Secondary text line height in proportion to badge height");
         addProperty("text-height-factor", Property.FLOAT, String.format("%.3f", textHeightFactor),
-                    "Line height to text ratio (smaller for bigger text, 1.0 " +
-                    "for equal heights)");
+                    "Text height to area ratio (larger for bigger text, 1.0 " +
+                    "for fit)");
         addProperty("font-bold", Property.STRING, "no",
                     "Make text bold {\"yes\", \"no\"}");
     }
@@ -220,7 +221,7 @@ public class ClassicMercuryBadgeRenderer extends Renderer {
         gg.setFont(f);
         gg.drawString(badge.primaryText, 0, fm.getHeight()-fm.getDescent());
         gg.dispose();
-        textH = (int)(primaryHeight * d.height);
+        textH = (int)(textHeightFactor * primaryHeight * d.height);
         textW = (int)((float)textH / imgPrimaryText.getHeight() *
                       imgPrimaryText.getWidth());
         limitW = d.width - (int)(0.08f * d.width);
@@ -245,7 +246,7 @@ public class ClassicMercuryBadgeRenderer extends Renderer {
             gg.setFont(f);
             gg.drawString(badge.secondaryText, 0, fm.getHeight()-fm.getDescent());
             gg.dispose();
-            textH = (int)(secondaryHeight * d.height);
+            textH = (int)(textHeightFactor * secondaryHeight * d.height);
             textW = (int)((float)textH / imgSecondaryText.getHeight() *
                           imgSecondaryText.getWidth());
             limitW = d.width - (imgNumber != null ? numberW : 0)
@@ -303,20 +304,29 @@ public class ClassicMercuryBadgeRenderer extends Renderer {
         pane.add(paneOptions);
         pane.add(Box.createRigidArea(new Dimension(5, 5)));
         
-        panePrimaryHeight = new TextInputPane("Primary Text Height: ", 200,
-                                              "Apply");
+        panePrimaryHeight = new TextInputPane("Primary Text Height: ", 200);
         panePrimaryHeight.setText(String.format("%.3f", primaryHeight));
         panePrimaryHeight.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
-        panePrimaryHeight.addAction(0, e ->  { applySettings(); });
         pane.add(panePrimaryHeight);
         pane.add(Box.createRigidArea(new Dimension(5, 5)));
         
-        paneSecondaryHeight = new TextInputPane("Secondary Text Height: ", 200,
-                                                "Apply");
+        paneSecondaryHeight = new TextInputPane("Secondary Text Height: ", 200);
         paneSecondaryHeight.setText(String.format("%.3f", secondaryHeight));
         paneSecondaryHeight.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
-        paneSecondaryHeight.addAction(0, e ->  { applySettings(); });
         pane.add(paneSecondaryHeight);
+        pane.add(Box.createRigidArea(new Dimension(5, 5)));
+        
+        paneTextHeightFactor = new TextInputPane("Text Height Factor: ", 200);
+        paneTextHeightFactor.setText(String.format("%.3f", textHeightFactor));
+        paneTextHeightFactor.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
+        pane.add(paneTextHeightFactor);
+        pane.add(Box.createRigidArea(new Dimension(5, 5)));
+        
+        paneButtonApply = new JPanel();
+        btnApply = new JButton("Apply");
+        btnApply.addActionListener((e) -> { applySettings(); } );
+        paneButtonApply.add(btnApply);
+        pane.add(paneButtonApply);
         
         min = new Dimension(5, 5);
         pref = new Dimension(5, 5);
@@ -326,8 +336,11 @@ public class ClassicMercuryBadgeRenderer extends Renderer {
         return pane;
     }
     
+    private JPanel paneButtonApply;
+    private JButton btnApply;
     private TextInputPane panePrimaryHeight;
     private TextInputPane paneSecondaryHeight;
+    private TextInputPane paneTextHeightFactor;
     
     private void applySettings() {
         try {
@@ -344,6 +357,14 @@ public class ClassicMercuryBadgeRenderer extends Renderer {
             secondaryHeight = newSecondaryHeight;
         } catch(NumberFormatException nfe) {
             paneSecondaryHeight.setText(String.format("%.3f", secondaryHeight));
+        }
+        
+        try {
+            float newTextHeightFactor = Float.parseFloat(
+                    paneTextHeightFactor.getText());
+            textHeightFactor = newTextHeightFactor;
+        } catch(NumberFormatException nfe) {
+            paneTextHeightFactor.setText(String.format("%.3f", textHeightFactor));
         }
     }
 }
