@@ -116,7 +116,7 @@ public class HelpWindow extends JFrame {
     }
     
     private void openHelpDocument(String key) {
-        String document = Text.parseHTMLResource(key);
+        String document = Text.resolveBuiltInText(Text.parseHTMLResource(key));
         if(document == null) {
             text.setText("<h2>" + key + " - Document Not Found</h2>");
             return;

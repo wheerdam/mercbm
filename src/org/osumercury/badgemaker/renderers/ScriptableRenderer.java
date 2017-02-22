@@ -125,8 +125,8 @@ public class ScriptableRenderer extends Renderer {
                         p = new Polygon();
                         for(String pStr : tokens.subList(3, tokens.size())) {
                             coords = pStr.split(",");
-                            x = (int)(Float.parseFloat(coords[0])/100 * (d.width-1));
-                            y = (int)(Float.parseFloat(coords[1])/100 * (d.height-1));
+                            x = (int)(Float.parseFloat(coords[0])/100 * (d.width));
+                            y = (int)(Float.parseFloat(coords[1])/100 * (d.height));
                             p.addPoint(x, y);
                         }
                         g.setColor(color);
@@ -138,8 +138,8 @@ public class ScriptableRenderer extends Renderer {
                         break;
                     case "oval":
                         color = parseColor(badge, tokens.get(2));
-                        x = (int)(Float.parseFloat(tokens.get(3))/100 * (d.width-1));
-                        y = (int)(Float.parseFloat(tokens.get(4))/100 * (d.height-1));
+                        x = (int)(Float.parseFloat(tokens.get(3))/100 * (d.width));
+                        y = (int)(Float.parseFloat(tokens.get(4))/100 * (d.height));
                         w = (int)(Float.parseFloat(tokens.get(5))/100 * (d.width));
                         h = (int)(Float.parseFloat(tokens.get(6))/100 * (d.height));
                         g.setColor(color);
@@ -151,8 +151,8 @@ public class ScriptableRenderer extends Renderer {
                         break;
                     case "circle":
                         color = parseColor(badge, tokens.get(2));
-                        x = (int)(Float.parseFloat(tokens.get(3))/100 * (d.width-1));
-                        y = (int)(Float.parseFloat(tokens.get(4))/100 * (d.height-1));
+                        x = (int)(Float.parseFloat(tokens.get(3))/100 * (d.width));
+                        y = (int)(Float.parseFloat(tokens.get(4))/100 * (d.height));
                         if(tokens.get(5).equals("width")) {
                             dia = (int)(Float.parseFloat(tokens.get(6))/100 * (d.width));
                         } else {
@@ -197,25 +197,22 @@ public class ScriptableRenderer extends Renderer {
                             continue;
                         }
                         switch(tokens.get(2)) {
-                            case "fit":
-                                h = (int)(Float.parseFloat(tokens.get(3))/100 * d.height);
-                                w = (int)((float)h/img.getHeight()*img.getWidth());
-                                if(w > d.width) {
-                                    w = d.width;
-                                    h = (int)((float)w/img.getWidth()*img.getHeight());
-                                }
-                                break;
                             case "width":
                                 w = (int)(Float.parseFloat(tokens.get(3))/100 * d.width);
                                 h = (int)((float)w/img.getWidth()*img.getHeight());
                                 break;
-                            default:
-                                Log.d(0, this + ".render: unknown blit scaling " + 
-                                         "method \'" + tokens.get(2) + "\', " +
-                                         "using height scaling");
                             case "height":
                                 h = (int)(Float.parseFloat(tokens.get(3))/100 * d.height);
                                 w = (int)((float)h/img.getHeight()*img.getWidth());
+                                break;
+                            default:
+                                w = (int)(Float.parseFloat(tokens.get(2))/100 * d.width);
+                                h = (int)((float)w/img.getWidth()*img.getHeight());
+                                int hLimit = (int)(Float.parseFloat(tokens.get(3))/100 * d.height);
+                                if(h > hLimit) {
+                                    h = hLimit;
+                                    w = (int)((float)h/img.getHeight()*img.getWidth());
+                                }
                         }
                         x = parsePosition(d.width, w, tokens.get(4));                        
                         y = parsePosition(d.height, h, tokens.get(5));

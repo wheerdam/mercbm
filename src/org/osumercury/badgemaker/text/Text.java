@@ -22,6 +22,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.regex.*;
 import org.osumercury.badgemaker.Log;
+import org.osumercury.badgemaker.Main;
 
 /**
  *
@@ -47,6 +48,30 @@ public class Text {
                 f = "";
             }
             m.appendReplacement(sb, "src=\"" + f + "\"");
+        }
+        m.appendTail(sb);
+        return sb.toString();
+    }
+    
+    public static String resolveBuiltInText(String data) {
+        if(data == null) {
+            return null;
+        }
+        Pattern p = Pattern.compile("&&(.*)&&");
+        Matcher m = p.matcher(data);
+        StringBuffer sb = new StringBuffer();
+        while(m.find()) {
+            switch(m.group(1)) {
+                case "helpMessage":
+                    m.appendReplacement(sb, Main.usage());
+                    break;
+                case "version":
+                    m.appendReplacement(sb, Main.version());
+                    break;
+                case "copyright":
+                    m.appendReplacement(sb, Main.copyright());
+                    break;
+            }
         }
         m.appendTail(sb);
         return sb.toString();

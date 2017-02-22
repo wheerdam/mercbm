@@ -1,0 +1,158 @@
+<html>
+<head>
+<style>
+    body {
+        font-family: sans-serif;
+        font-size: 11px;
+    }
+    
+    h2 {
+        margin-bottom: 10px;
+        margin-top: 0px;
+    }
+    
+    h3 {
+        margin-bottom: 10px;
+        margin-top: 0px;
+    }
+    
+    p {
+        margin-bottom: 10px;
+        margin-top: 0px;
+    }
+
+	.indent {
+        margin-bottom: 10px;
+        margin-top: 0px;
+		margin-left: 20px;
+    }
+    
+    hr {
+        margin-bottom: 10px;
+    }
+    
+    ol, ul {
+        margin-top: 0px;
+        margin-bottom: 5px;
+    }
+    
+    li {
+        margin-bottom: 5px;
+    }
+
+	.mono {
+		font-family: monospaced;
+		font-size: 10px;
+	}
+</style>
+<head>
+<body>
+    <h2>Scriptable Renderer</h2>
+    <p>The scriptable renderer is an option in the program that can be used to
+    generate custom badge / certificate designs. The renderer takes a script
+    input that is interpreted linearly line by line. Earlier lines will be
+    rendered first. Subsequent lines will be rendered <em>over</em> the
+    previous renders (e.g. background will need to be rendered before 
+    foreground text, thus the commands generating the background will have
+    to be listed first).</p>
+	<h3>Coordinates</h3>
+	<p>The top left corner of the image is the origin. Positions and sizes
+    are described in the percentage of either the width or the height of the 
+	document (0 to 100). Positions and sizes that are a tuple will always 
+	require both proportions. Elements that are only scaled to either the 
+	width or height of the document will need to be specified with the width 
+	or height keyword: <span class="mono">{width, height}
+	 <em>proportion%</em></span>.</p>
+	<h3>Colors</h3>
+	<p>Colors are defined either by the HTML hex color code or user-defined 
+	colors from the input data (Input tab). Valid user-defined color keywords are:</p>
+	<ul>
+		<li><span class="mono">bg</span> - badge background color</li>
+		<li><span class="mono">textbg</span> - text background color</li>
+		<li><span class="mono">text</span> - text color</li> 
+	</ul>
+	<p><a href="https://en.wikipedia.org/wiki/Web_colors">HTML hex color code</a>
+	 defines a 24-bit RGB color value in
+	hexadecimal format. For example, the RGB color 80,100,100 is 
+	<strong class="mono">506464</strong>. The program also supports alpha channel for colors,
+	and this is defined by adding another 8-bit value. For example, the previous
+	color can take an alpha value of 50 by specifying: <strong class="mono">32506464</strong>.</p>
+	<h3>Commands</h3>
+    <p>The following is a list of valid script commands for the renderer.
+	<strong>Bold</strong> terms are command identifiers, <em>italicized</em>
+	terms are parameters, and plain words are keywords. Terms inside curly 
+	braces are options where one parameter <em>or</em> a keyword must be
+    selected. Terms inside square brackets are optional.</p>
+	<p class="mono"><strong>poly</strong> {fill, edge} <em>color</em> <em>x1</em>,<em>y1</em> <em>x2,<em>y2</em> ... <em>xn</em>,<em>yn</em></p>
+	<p class="indent">Draw a polygon with the specified color and vertices. The
+	vertices must be specified in terms of the document width and height proportions.
+	For example, a vertex in the middle of the document will be specified as
+	<strong class="mono">50,50</strong>. There can be no spaces between the values and the
+	comma.</p>
+	<p class="mono"><strong>oval</strong> {fill, edge} <em>color</em> <em>x</e> <em>y</em> <em>width</em> <em>height</em></p>
+	<p class="indent">Draw an oval with the specified color, position, and size.
+	<em>x</em>, <em>y</em>, <em>width</em>, and <em>height</em> define a bounding
+	box that will be filled by the oval in proportion to the document width and height
+	(0 to 100 for each value). <em>x</em> and <em>y</em> are the
+	top left of the bounding box.</p>
+	<p class="mono"><strong>circle</strong> {fill, edge} <em>color</em> <em>center-x</em> <em>center-y</em> {width, height} <em>proportion%</em></p>
+	<p class="indent">Draw a circle with the specified color, position, and size.
+	<em>center-x</em> and <em>center-y</em> define the center point of the circle.
+	<em>proportion%</em> define the diameter of the circle in terms of the 
+	proportion of either the width or the height of the document.</p>
+	<p class="mono"><strong>blit</strong> {<em>filepath</em>, bg} {width, height, <em>bound-x</em>} {<em>proportion%, bound-y</em>} <em>x</em> <em>y</em> [<em>alpha%</em>]
+	<p class="indent">Draw an image either specified by <em>filepath</em> or the badge background image (<span class="mono">bg</span> keyword).
+	<em>filepath</em> is relative to the path of the script file.</p>
+	<p class="indent">The image can be scaled down three ways:</p>
+	<ol>
+		<li><span class="mono">width <em>proportion%</em></span> &mdash; scale the width of the image down
+		to a proportion of the document width while maintaining the aspect ratio.</li>
+		<li><span class="mono">height <em>proportion%</em></span> &mdash; scale the height of the image down
+		to a proportion of the document height while maintaining the aspect ratio.</li>
+		<li><span class="mono"><em>bound-x</em> <em>bound-y</em></span> &mdash; scale the width of the image down
+		to a proportion of the document width while maintaining the aspect ratio. If the resulting image height exceeds
+		bound-y, the image will be further scaled down so it will fit inside the rectangle defined by <em>bound-x</em> and <em>bound-y</em></li>
+	</ol>
+	<p class="indent"><em>x</em> and <em>y</em> define where the image will be placed.
+	These values are percentages of the document width and height, respectively, as
+	described in the Coordinates section. <em>x</em> can also take the value "left",
+	"centered", or "right" and <em>y</em> can take the value "top", "centered", 
+	or "bottom". These position keywords can be used to align the image relative to
+	the document center and edges.</p>
+	<p class="indent">The optional <em>alpha%</em> parameter will apply translucency to the image. This value can range
+	from 0 to 100 with 0 being fully transparent and 100 being opaque.</p>
+	<p class="mono"><strong>text</strong> "<em>string</em>" "<em>font-name</em>" <em>font-attributes</em> <em>x</em> <em>y</em>
+	<em>bound-x</em> <em>bound-y</em> [{centered, right}]</p>
+	<p class="indent">Draw a text with the specified string, font name, and font attributes. The text will be fit inside
+	a bounding rectangle defined by <em>bound-x</em> and <em>bound-y</em> and placed to a point as specified by
+	<em>x</em> and <em>y</em> (the top left corner of this bounding rectangle). The text will be left-aligned and
+	centered vertically within the box. The optional alignment option can be used to change the horizontal alignment
+	of the text within the box.</p>
+	<p class="indent">Valid values for <em>font-attributes</em> are "bold", "italic", and "bold,italic" (no spaces).</p>
+	<p class="mono">{<strong>primarytext</strong>,<strong>secondarytext</strong>,<strong>number</strong>} "<em>font-name</em>" <em>font-attributes</em> <em>x</em> <em>y</em>
+	<em>bound-x</em> <em>bound-y</em> [{centered, right}]</p>
+	<p class="indent">Similar to <strong>text</strong>, but use the badge's primary text, secondary text, or number for the string.</p>
+	<h3>Example</h3>
+	<p>The following example results in the badge below:</p>
+	<div align="center"><p><img src="scriptable-example.png" /></p></div>
+	<pre>
+poly fill textbg 0,0 0,100 100,100 100,0
+poly fill 25ff0000 0,50 50,0 100,50 50,100
+oval fill 30ddddff 50 50 90 90
+oval fill 30ddddff 50 50 30 60
+oval fill 30ddddff 50 50 60 30
+circle fill 30ddddff 50 50 height 10  
+circle fill 30ddddff 50 50 height 30  
+circle fill 30ddddff 50 50 width 90  
+circle fill ff0000 10 10 width 10
+blit bg 100 60 35 5 100 
+number 00ffff "Noto Sans" bold,italic 2 75 15 20 right
+primarytext text "Noto Sans" bold 20 75 75 20
+secondarytext text "Noto Sans" italic 20 90 75 10
+	</pre>
+    <hr />
+    <p><a href="Help.html">Home</a></p>
+</body>
+</head>
+</html>
+

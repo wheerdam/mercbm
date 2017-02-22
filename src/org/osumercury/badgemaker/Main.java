@@ -70,7 +70,7 @@ public class Main {
                             }
                             break;
                         case "--help":
-                            usage();
+                            Log.d(0, usage());
                             System.exit(0);
                         case "--debug":
                             check(args, i , 1);
@@ -263,9 +263,51 @@ public class Main {
                                e);
             System.exit(1);
         }
+    }        
+    
+    public static void printRendererProperties(Renderer r) {
+        Log.d(0, "Renderer: " + r.getDescription());
+        Log.d(0, "Valid properties:");
+        Log.d(0, pad(10, "Type") +
+                           pad(25, "Key") +
+                           pad(14, "Default") +
+                           " Description");
+        for(Renderer.Property p : r.getValidProperties()) {
+            switch(p.getType()) {
+                case Renderer.Property.FLOAT:
+                    Log.di(0, pad(12, "  FLOAT"));
+                    break;
+                case Renderer.Property.INTEGER:
+                    Log.di(0, pad(12, "  INTEGER"));
+                    break;
+                case Renderer.Property.STRING:
+                    Log.di(0, pad(12, "  STRING"));
+                    break;
+                default:
+                    Log.di(0, pad(12, "  INVALID"));
+            }
+            Log.d(0, pad(25, p.getKey()) + " " +
+                               pad(11, p.getDefaultValue()) + "   " +
+                               p.getDescription());
+        }
+    }
+
+    static class CustomClassLoader extends ClassLoader {
+        public Class loadClass(String name, String path) {
+            Class c = null;
+            try {
+                byte[] data = Files.readAllBytes(Paths.get(path));
+                c = defineClass(name, data, 0, data.length);
+            } catch(IOException ioe) {
+                Log.err("Failed to read class file " + ioe);
+            } catch(NoClassDefFoundError e) {
+                Log.err("Failed to load custom renderer class: " + e);
+            }
+            return c;
+        }
     }
     
-    public static void usage() {
+    public static String usage() {
         String help;
         help  =   "Usage:\n"
                 + "  java -jar <jar-file> [[--] or [-i] INPUT] [RENDERER] [OPTIONS] [OUTPUTS]\n"
@@ -314,48 +356,11 @@ public class Main {
                 + "                           valid sizes: A0, ... A6, LETTER, LEGAL\n"
                 + "                           orientations: PORTRAIT, LANDSCAPE\n"
                 + "                           units: MM, INCHES\n";
-        Log.d(0, help);
+        return help;
     }
     
-    public static void printRendererProperties(Renderer r) {
-        Log.d(0, "Renderer: " + r.getDescription());
-        Log.d(0, "Valid properties:");
-        Log.d(0, pad(10, "Type") +
-                           pad(25, "Key") +
-                           pad(14, "Default") +
-                           " Description");
-        for(Renderer.Property p : r.getValidProperties()) {
-            switch(p.getType()) {
-                case Renderer.Property.FLOAT:
-                    Log.di(0, pad(12, "  FLOAT"));
-                    break;
-                case Renderer.Property.INTEGER:
-                    Log.di(0, pad(12, "  INTEGER"));
-                    break;
-                case Renderer.Property.STRING:
-                    Log.di(0, pad(12, "  STRING"));
-                    break;
-                default:
-                    Log.di(0, pad(12, "  INVALID"));
-            }
-            Log.d(0, pad(25, p.getKey()) + " " +
-                               pad(11, p.getDefaultValue()) + "   " +
-                               p.getDescription());
-        }
-    }
-
-    static class CustomClassLoader extends ClassLoader {
-        public Class loadClass(String name, String path) {
-            Class c = null;
-            try {
-                byte[] data = Files.readAllBytes(Paths.get(path));
-                c = defineClass(name, data, 0, data.length);
-            } catch(IOException ioe) {
-                Log.err("Failed to read class file " + ioe);
-            } catch(NoClassDefFoundError e) {
-                Log.err("Failed to load custom renderer class: " + e);
-            }
-            return c;
-        }
-    }
+    public static String version() { return "0.3"; }        
+    public static String copyright() { 
+        return "Copyright (c)2017 Carl D. Latino and Wira D. Mulia"; 
+    }    
 }
