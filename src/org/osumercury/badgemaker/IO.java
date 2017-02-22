@@ -412,9 +412,8 @@ public class IO {
                         try {
                             imageFilePath = new File(imageParentPath
                                     + "/" + record.get(3).trim());
-                            Log.d(0, "      loading " +
-                                               imageFilePath.getAbsolutePath());
-                            background = ImageIO.read(imageFilePath);
+                            
+                            background = ImageTools.get(imageFilePath);
                         } catch(IOException ioe) {
                             Log.err("Failed to load image " + 
                                     "(line " + recordNum + "): " +

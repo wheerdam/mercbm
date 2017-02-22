@@ -79,6 +79,11 @@ public class Main {
                         case "--certificate-renderer":
                             r = new MercuryCertificateRenderer();
                             break;
+                        case "--scriptable":
+                            check(args, i, 1);
+                            r = new ScriptableRenderer();
+                            r.setProperty("script-file", args[++i]);
+                            break;
                         case "--custom-renderer":
                             check(args, i, 2);
                             loadCustomRenderer(args[++i], args[++i]);
@@ -284,6 +289,7 @@ public class Main {
                 + "renderer. The following is a list of alternative renderers:\n"
                 + "\n"
                 + " --certificate-renderer  Mercury certificate of participation\n"
+                + " --scriptable SCRIPT     the scriptable renderer\n"
                 + " --custom-renderer CLASSNAME CLASSFILE\n"
                 + "                         dynamically load an external renderer\n"
                 + "\n"

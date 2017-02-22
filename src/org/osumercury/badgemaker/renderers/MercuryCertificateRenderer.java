@@ -218,7 +218,7 @@ public class MercuryCertificateRenderer extends Renderer {
         
         if(pathToBackground != null) {
             try{
-                background = ImageIO.read(new File(pathToBackground));
+                background = ImageTools.get(pathToBackground);
             } catch(IOException ioe) {
                 Log.err("Failed to load background image: " + pathToBackground);
             }
@@ -234,7 +234,7 @@ public class MercuryCertificateRenderer extends Renderer {
         
         if(pathToLogo != null) {
             try{
-                logo = ImageIO.read(new File(pathToLogo));
+                logo = ImageTools.get(pathToLogo);
             } catch(IOException ioe) {
                 Log.err("Failed to load logo image: " + pathToLogo);
             }

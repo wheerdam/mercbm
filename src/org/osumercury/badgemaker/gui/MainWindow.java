@@ -34,8 +34,7 @@ import org.osumercury.badgemaker.renderers.*;
  * @author wira
  */
 public class MainWindow extends JFrame {
-    org.osumercury.badgemaker.Renderer r0;
-    org.osumercury.badgemaker.Renderer r1;
+    org.osumercury.badgemaker.Renderer r0, r1, r2;
     org.osumercury.badgemaker.Renderer currentRenderer;
     
     private static final FontSelectDialog fontSelectDialog = 
@@ -97,6 +96,7 @@ public class MainWindow extends JFrame {
         // use default
         r0 = new ClassicMercuryBadgeRenderer();
         r1 = new MercuryCertificateRenderer();
+        r2 = new ScriptableRenderer();
         currentRenderer = r0;
         width = Badge.DEFAULT_WIDTH;
         height = Badge.DEFAULT_PROPORTION * Badge.DEFAULT_WIDTH;
@@ -193,8 +193,10 @@ public class MainWindow extends JFrame {
         paneRenderer.add(paneRenderPreview, BorderLayout.LINE_END);
         cmbRenderers.addItem(r0.getDescription());
         cmbRenderers.addItem(r1.getDescription());
+        cmbRenderers.addItem(r2.getDescription());
         if(!(Main.getRenderer() instanceof ClassicMercuryBadgeRenderer ||
-             Main.getRenderer() instanceof MercuryCertificateRenderer)) {
+             Main.getRenderer() instanceof MercuryCertificateRenderer ||
+             Main.getRenderer() instanceof ScriptableRenderer)) {
             cmbRenderers.addItem(Main.getRenderer().getDescription());
         }
         cmbRenderers.addActionListener(e -> { rendererListSelectionChanged(); });
@@ -460,8 +462,9 @@ public class MainWindow extends JFrame {
         switch(cmbRenderers.getSelectedIndex()) {
             case 0: return r0;
             case 1: return r1;
+            case 2: return r2;
             default:
-            case 2: return Main.getRenderer();
+                return Main.getRenderer();
         }
     }
     
@@ -585,6 +588,9 @@ public class MainWindow extends JFrame {
                 currentRenderer = r1;
                 break;
             case 2:
+                currentRenderer = r2;
+                break;
+            case 3:
                 currentRenderer = Main.getRenderer();
                 break;
         }
