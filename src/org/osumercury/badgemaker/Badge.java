@@ -26,7 +26,6 @@ import java.util.List;
  * @author wira
  */
 public class Badge {
-    private BufferedImage unscaledImage;
     private final List<String> extraData;
     public float width;
     public float proportion;
@@ -72,20 +71,14 @@ public class Badge {
     
     public void setProportion(float f) {
         this.proportion = f;
-        // reset image
-        unscaledImage = null;
     }
     
     public void setResolution(int v) {
         this.resolution = v;
-        // reset image
-        unscaledImage = null;
     }
     
     public void setWidth(float f) {
         this.width = f;
-        // reset image
-        unscaledImage = null;
     }    
     
     public Dimension getPixelDimension() {
@@ -127,16 +120,5 @@ public class Badge {
     
     public float getResolution() {
         return resolution;
-    }
-    
-    public void render(Renderer r) {
-        unscaledImage = r.render(this);
-    }
-    
-    public BufferedImage getImage(Renderer r) {
-        if(unscaledImage == null) {
-            render(r);
-        }
-        return unscaledImage;
     }
 }

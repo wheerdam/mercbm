@@ -676,7 +676,7 @@ public class MainWindow extends JFrame {
     }
 
     private void previewRender() {
-        Badge preview = new Badge(47, "Full Name", "Institution", null,
+        Badge preview = new Badge(47, "Professor Xyz", "School of Magic", null,
                                   "ffffff", "ff7300", "ffffff");
         preview.setWidth(width);
         preview.setProportion(height / width);
@@ -685,7 +685,7 @@ public class MainWindow extends JFrame {
         lblRenderPreview.setText("Rendering Preview...");
         (new Thread(() -> {
             BufferedImage scaledPreview = ImageTools.scale(
-                                          preview.getImage(currentRenderer), 
+                                          currentRenderer.render(preview), 
                                           360, 360);
             int w = scaledPreview.getWidth();
             int h = scaledPreview.getHeight();

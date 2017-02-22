@@ -60,6 +60,8 @@ public class ClassicMercuryBadgeRenderer extends Renderer {
                     "for fit)");
         addProperty("font-bold", Property.STRING, "no",
                     "Make text bold {\"yes\", \"no\"}");
+        addProperty("font-size-initial", Property.INTEGER, "" + originalFontSize,
+                    "initial full resolution font size");
     }
     
     @Override
@@ -81,6 +83,9 @@ public class ClassicMercuryBadgeRenderer extends Renderer {
                     break;
                 case "font-bold":
                     fontBold = value.equals("yes");
+                    break;
+                case "font-size-initial":   
+                    originalFontSize = Integer.parseInt(value); 
                     break;
                 default:
                     System.err.println("Unknown property key: " + key);

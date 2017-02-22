@@ -151,9 +151,9 @@ public class IO {
             try {
                 PDImageXObject img = PNG ? 
                                      LosslessFactory.
-                                     createFromImage(doc, badge.getImage(r))
+                                     createFromImage(doc, r.render(badge))
                                      : JPEGFactory.
-                                     createFromImage(doc, badge.getImage(r));
+                                     createFromImage(doc, r.render(badge));
                 largestH = badgeH > largestH ? badgeH : largestH;
                 if(offX + spacing + badgeW > limitW) {
                     // Log.d(0, "    New row");
@@ -224,7 +224,7 @@ public class IO {
                                        outFile.getAbsolutePath());
                 } else {
                     outFile.createNewFile();
-                    ImageIO.write(badge.getImage(r), "png", outFile);
+                    ImageIO.write(r.render(badge), "png", outFile);
                 }
             } catch(Exception e) {
                 Log.err("Failed to write " + fileName +
@@ -264,7 +264,7 @@ public class IO {
                 } else {
                     outFile.createNewFile();
                     // need to convert to TYPE_INT_RGB to remove alpha channel
-                    ImageIO.write(ImageTools.discardAlphaChannel(badge.getImage(r)),
+                    ImageIO.write(ImageTools.discardAlphaChannel(r.render(badge)),
                                   "jpg", outFile);
                 }
             } catch(Exception e) {
