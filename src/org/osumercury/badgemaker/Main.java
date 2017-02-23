@@ -37,8 +37,10 @@ public class Main {
     private static String pdfPageSize;
     private static int pdfUnits;
     private static boolean gui = false;
-    private static float pdfPageMargin;
-    private static float pdfBadgeSpacing;
+    private static float pdfPageHMargin;
+    private static float pdfPageVMargin;
+    private static float pdfBadgeHSpacing;
+    private static float pdfBadgeVSpacing;
     private static boolean pdfLandscape;
     private static boolean preferLosslessOutput = false;
     private static Renderer r = new ClassicMercuryBadgeRenderer();
@@ -116,7 +118,7 @@ public class Main {
                             jpgOutputDir = args[++i];
                             break;
                         case "--pdf":
-                            check(args, i, 6);
+                            check(args, i, 8);
                             pdf = args[++i];
                             pdfPageSize = args[++i].toUpperCase();
                             pdfLandscape = args[++i].toUpperCase().equals("LANDSCAPE");
@@ -127,8 +129,10 @@ public class Main {
                                 default:
                                     pdfUnits = IO.UNIT_INCHES;
                             }
-                            pdfPageMargin = Float.parseFloat(args[++i]);
-                            pdfBadgeSpacing = Float.parseFloat(args[++i]);
+                            pdfPageHMargin = Float.parseFloat(args[++i]);
+                            pdfPageVMargin = Float.parseFloat(args[++i]);
+                            pdfBadgeHSpacing = Float.parseFloat(args[++i]);
+                            pdfBadgeVSpacing = Float.parseFloat(args[++i]);
                             break;
                         case "-s":
                             check(args, i, 2);
@@ -200,7 +204,8 @@ public class Main {
                 }
                 
                 IO.generatePDF(r, null, pageSize,
-                               pdfPageMargin, pdfBadgeSpacing, 
+                               pdfPageHMargin, pdfPageVMargin,
+                               pdfBadgeHSpacing, pdfBadgeVSpacing,
                                pdfUnits, pdfLandscape,
                                preferLosslessOutput,
                                badges, 
@@ -351,7 +356,7 @@ public class Main {
                 + "OUTPUT formats (must specify at least one if '-i' is used):\n" 
                 + "  --png DIRECTORY        output badges as PNG files\n"
                 + "  --jpg DIRECTORY        output badges as JPG files\n"
-                + "  --pdf FILENAME SIZE ORIENTATION UNITS MARGIN SPACING\n"
+                + "  --pdf FILENAME SIZE ORIENTATION UNITS H-MARGIN V-MARGIN H-SPACING V-SPACING\n"
                 + "                         generate a PDF document with the specified format\n"
                 + "                           valid sizes: A0, ... A6, LETTER, LEGAL\n"
                 + "                           orientations: PORTRAIT, LANDSCAPE\n"

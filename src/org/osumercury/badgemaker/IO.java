@@ -40,7 +40,8 @@ public class IO {
     
     public static void generatePDF(Renderer r, Progress p,
                                    PDRectangle pdPageSize,
-                                   float pageMargin, float badgeSpacing,
+                                   float pageHMargin, float pageVMargin,
+                                   float badgeHSpacing, float badgeVSpacing,
                                    int units,
                                    boolean landscape,
                                    boolean PNG,
@@ -51,8 +52,10 @@ public class IO {
         // set up our coordinate system
         // pdf uses 1/72" coodinate units, we use this to convert our internal
         // dimensions to pdf coordinates
-        float margin = (mm ? 1/25.4f : 1.0f) * pageMargin * 72.0f;
-        float spacing = (mm ? 1/25.4f : 1.0f) * badgeSpacing * 72.0f;
+        float hMargin = (mm ? 1/25.4f : 1.0f) * pageHMargin * 72.0f;
+        float vMargin = (mm ? 1/25.4f : 1.0f) * pageVMargin * 72.0f;
+        float hSpacing = (mm ? 1/25.4f : 1.0f) * badgeHSpacing * 72.0f;
+        float vSpacing = (mm ? 1/25.4f : 1.0f) * badgeVSpacing * 72.0f;
         
         if(badges.isEmpty()) {
             Log.err("No badges to output");
@@ -64,12 +67,12 @@ public class IO {
         
         PDDocument doc = new PDDocument();
         String badgeTitle;
-        float offX = margin;
-        float offY = margin;
+        float offX = hMargin;
+        float offY = vMargin;
         float pageW = landscape ? pdPageSize.getHeight() : pdPageSize.getWidth();
         float pageH = landscape ? pdPageSize.getWidth() : pdPageSize.getHeight();
-        float limitW = pageW - 2*margin;
-        float limitH = pageH - 2*margin;
+        float limitW = pageW - 2*hMargin;
+        float limitH = pageH - 2*vMargin;
         float badgeW;
         float badgeH;
         float largestH = -1;
@@ -110,8 +113,8 @@ public class IO {
             badgeNum++;
             if(page == null || 
                 ( // check if we need to be on a new page
-                    (offX + spacing + badgeW) > limitW &&
-                    (offY + largestH + spacing + badgeH) > limitH
+                    (offX + hSpacing + badgeW) > (limitW+hMargin) &&
+                    (offY + largestH + vSpacing + badgeH) > (limitH+vMargin)
                 ))
             {
                 // add previous page to doc if we're not on first page
@@ -143,8 +146,8 @@ public class IO {
                     return;
                 }
                 // reset our position
-                offX = margin;
-                offY = margin;
+                offX = hMargin;
+                offY = vMargin;
                 largestH = -1;
             }
             
@@ -155,12 +158,12 @@ public class IO {
                                      : JPEGFactory.
                                      createFromImage(doc, r.render(badge));
                 largestH = badgeH > largestH ? badgeH : largestH;
-                if(offX + spacing + badgeW > limitW) {
+                if(offX + hSpacing + badgeW > (limitW+hMargin)) {
                     // Log.d(0, "    New row");
-                    offX = margin;
-                    offY += largestH + spacing;
+                    offX = hMargin;
+                    offY += largestH + vSpacing;
                 }
-                offX += spacing;
+                offX += hSpacing;
                 if(pS != null) {
                     pS.drawImage(img, offX, offY, badgeW, badgeH);
                 }

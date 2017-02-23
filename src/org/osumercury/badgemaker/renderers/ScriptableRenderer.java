@@ -241,6 +241,9 @@ public class ScriptableRenderer extends Renderer {
         
     private void drawText(Graphics2D g, Badge badge, Dimension d,
                           String str, List<String> tokens) {        
+        if(str.equals("")) {
+            return;
+        }
         g.setColor(parseColor(badge, tokens.get(0)));
         Font f = new Font(tokens.get(1), 
                     (tokens.get(2).contains("bold") ? Font.BOLD : 0) |

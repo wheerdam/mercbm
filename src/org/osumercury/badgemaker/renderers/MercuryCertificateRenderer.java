@@ -265,7 +265,9 @@ public class MercuryCertificateRenderer extends Renderer {
         Graphics2D gg;
         FontMetrics fm = g.getFontMetrics(f);
         
-        imgCertification = new BufferedImage(fm.stringWidth(textCertification),
+        w = fm.stringWidth(textCertification);
+        w = w == 0 ? 1 : w;
+        imgCertification = new BufferedImage(w,
                                              fm.getHeight(),
                                              BufferedImage.TYPE_INT_ARGB);
         gg = imgCertification.createGraphics();
@@ -285,7 +287,9 @@ public class MercuryCertificateRenderer extends Renderer {
                 }
             }
         }
-        imgParticipation = new BufferedImage(fm.stringWidth(textParticipationFinal),
+        w = fm.stringWidth(textParticipationFinal);
+        w = w == 0 ? 1 : w;
+        imgParticipation = new BufferedImage(w,
                                              fm.getHeight(),
                                              BufferedImage.TYPE_INT_ARGB);
         gg = imgParticipation.createGraphics();
@@ -296,7 +300,9 @@ public class MercuryCertificateRenderer extends Renderer {
         gg.drawString(textParticipationFinal, 0, fm.getHeight()-fm.getDescent());
         gg.dispose();                
         
-        imgAdvisorTitle = new BufferedImage(fm.stringWidth(textAdvisorTitle),
+        w = fm.stringWidth(textAdvisorTitle);
+        w = w == 0 ? 1 : w;
+        imgAdvisorTitle = new BufferedImage(w,
                                             fm.getHeight(),
                                             BufferedImage.TYPE_INT_ARGB);
         gg = imgAdvisorTitle.createGraphics();
@@ -307,7 +313,9 @@ public class MercuryCertificateRenderer extends Renderer {
         gg.drawString(textAdvisorTitle, 0, fm.getHeight()-fm.getDescent());
         gg.dispose();                
         
-        imgPresidentTitle = new BufferedImage(fm.stringWidth(textPresidentTitle),
+        w = fm.stringWidth(textPresidentTitle);
+        w = w == 0 ? 1 : w;
+        imgPresidentTitle = new BufferedImage(w,
                                               fm.getHeight(),
                                               BufferedImage.TYPE_INT_ARGB);
         gg = imgPresidentTitle.createGraphics();
@@ -318,7 +326,9 @@ public class MercuryCertificateRenderer extends Renderer {
         gg.drawString(textPresidentTitle, 0, fm.getHeight()-fm.getDescent());
         gg.dispose();                
         
-        imgHostTitle = new BufferedImage(fm.stringWidth(textHostTitle),
+        w = fm.stringWidth(textHostTitle);
+        w = w == 0 ? 1 : w;
+        imgHostTitle = new BufferedImage(w,
                                          fm.getHeight(),
                                          BufferedImage.TYPE_INT_ARGB);
         gg = imgHostTitle.createGraphics();
@@ -329,7 +339,9 @@ public class MercuryCertificateRenderer extends Renderer {
         gg.drawString(textHostTitle, 0, fm.getHeight()-fm.getDescent());
         gg.dispose();
         
-        imgHostInstitution = new BufferedImage(fm.stringWidth(textHostInstitution),
+        w = fm.stringWidth(textHostInstitution);
+        w = w == 0 ? 1 : w;
+        imgHostInstitution = new BufferedImage(w,
                                                fm.getHeight(),
                                                BufferedImage.TYPE_INT_ARGB);
         gg = imgHostInstitution.createGraphics();
@@ -340,7 +352,9 @@ public class MercuryCertificateRenderer extends Renderer {
         gg.drawString(textHostInstitution, 0, fm.getHeight()-fm.getDescent());
         gg.dispose();
         
-        imgDateLocation = new BufferedImage(fm.stringWidth(textDateLocation),
+        w = fm.stringWidth(textDateLocation);
+        w = w == 0 ? 1 : w;
+        imgDateLocation = new BufferedImage(w,
                                             fm.getHeight(),
                                             BufferedImage.TYPE_INT_ARGB);
         gg = imgDateLocation.createGraphics();
@@ -355,7 +369,9 @@ public class MercuryCertificateRenderer extends Renderer {
         f = new Font(font, Font.BOLD, originalFontSize);
         fm = g.getFontMetrics(f);
         
-        imgCompetitionTitle = new BufferedImage(fm.stringWidth(textCompetitionTitle),
+        w = fm.stringWidth(textCompetitionTitle);
+        w = w == 0 ? 1 : w;
+        imgCompetitionTitle = new BufferedImage(w,
                                                 fm.getHeight(),
                                                 BufferedImage.TYPE_INT_ARGB);
         gg = imgCompetitionTitle.createGraphics();
@@ -366,7 +382,9 @@ public class MercuryCertificateRenderer extends Renderer {
         gg.drawString(textCompetitionTitle, 0, fm.getHeight()-fm.getDescent());
         gg.dispose();
         
-        imgAdvisorName = new BufferedImage(fm.stringWidth(textAdvisorName),
+        w = fm.stringWidth(textAdvisorName);
+        w = w == 0 ? 1 : w;
+        imgAdvisorName = new BufferedImage(w,
                                            fm.getHeight(),
                                            BufferedImage.TYPE_INT_ARGB);
         gg = imgAdvisorName.createGraphics();
@@ -377,7 +395,9 @@ public class MercuryCertificateRenderer extends Renderer {
         gg.drawString(textAdvisorName, 0, fm.getHeight()-fm.getDescent());
         gg.dispose();
         
-        imgPresidentName = new BufferedImage(fm.stringWidth(textPresidentName),
+        w = fm.stringWidth(textPresidentName);
+        w = w == 0 ? 1 : w;
+        imgPresidentName = new BufferedImage(w,
                                              fm.getHeight(),
                                              BufferedImage.TYPE_INT_ARGB);
         gg = imgPresidentName.createGraphics();
@@ -388,7 +408,9 @@ public class MercuryCertificateRenderer extends Renderer {
         gg.drawString(textPresidentName, 0, fm.getHeight()-fm.getDescent());
         gg.dispose();
         
-        imgPrimary = new BufferedImage(fm.stringWidth(badge.primaryText),
+        w = fm.stringWidth(badge.primaryText);
+        w = w == 0 ? 1 : w;
+        imgPrimary = new BufferedImage(w,
                                        fm.getHeight(),
                                        BufferedImage.TYPE_INT_ARGB);
         gg = imgPrimary.createGraphics();
@@ -399,7 +421,9 @@ public class MercuryCertificateRenderer extends Renderer {
         gg.drawString(badge.primaryText, 0, fm.getHeight()-fm.getDescent());
         gg.dispose();
         
-        imgSecondary = new BufferedImage(fm.stringWidth(badge.secondaryText),
+        w = fm.stringWidth(badge.secondaryText);
+        w = w == 0 ? 1 : w;
+        imgSecondary = new BufferedImage(w,
                                          fm.getHeight(),
                                          BufferedImage.TYPE_INT_ARGB);
         gg = imgSecondary.createGraphics();

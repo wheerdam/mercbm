@@ -81,15 +81,16 @@ public class MainWindow extends JFrame {
     private JPanel paneCurrentRendererGUIControls;
     private JScrollPane scrollCurrentRendererGUIControls;
     
-    private JPanel paneOutputPDF;
     private TextInputPane paneOutputPNG;
     private TextInputPane paneOutputJPG;
     private JPanel paneOutputHalf;
     
     private ComboBoxPane panePDFPageSize;
     private ComboBoxPane panePDFPageOrientation;
-    private TextInputPane panePDFPageMargin;
-    private TextInputPane panePDFBadgeSpacing;
+    private TextInputPane panePDFPageHMargin;
+    private TextInputPane panePDFPageVMargin;
+    private TextInputPane panePDFBadgeHSpacing;
+    private TextInputPane panePDFBadgeVSpacing;
     private TextInputPane panePDFOutputFile;
     
     public void init() {
@@ -272,25 +273,28 @@ public class MainWindow extends JFrame {
         paneOutputHalf.add(paneOutputJPG);
         paneOutputHalf.setMaximumSize(new Dimension(Short.MAX_VALUE, 250));
         
-        paneOutputPDF = new JPanel();
-        paneOutputPDF.setLayout(new BoxLayout(paneOutputPDF, BoxLayout.Y_AXIS));
-        paneOutputPDF.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
         String[] pageSizes = { "LETTER", "A4", "LEGAL", "A0", "A1", "A2", "A3",
                                "A5", "A6" };
         panePDFPageSize = new ComboBoxPane("PDF Page Size: ", pageSizes, 200);
         String[] orientations = { "Portrait", "Landscape" };
         panePDFPageOrientation = new ComboBoxPane("Page Orientation: ", orientations, 200);
-        panePDFPageMargin = new TextInputPane("Margins: ", 200);
-        panePDFBadgeSpacing = new TextInputPane("Badge Spacing: ", 200);
+        panePDFPageHMargin = new TextInputPane("Side Margins: ", 200);
+        panePDFPageVMargin = new TextInputPane("Vertical Margins: ", 200);
+        panePDFBadgeHSpacing = new TextInputPane("Horizontal Spacing: ", 200);
+        panePDFBadgeVSpacing = new TextInputPane("Vertical Spacing: ", 200);
         panePDFOutputFile = new TextInputPane("PDF Output File: ", 200,
                                            "Browse", "Save");
         panePDFPageSize.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
         panePDFPageOrientation.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
-        panePDFPageMargin.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
-        panePDFBadgeSpacing.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
+        panePDFPageHMargin.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
+        panePDFPageVMargin.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
+        panePDFBadgeHSpacing.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
+        panePDFBadgeVSpacing.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
         panePDFOutputFile.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
-        panePDFPageMargin.setText("0.25");
-        panePDFBadgeSpacing.setText("0.05");
+        panePDFPageHMargin.setText("0.25");
+        panePDFPageVMargin.setText("0.25");
+        panePDFBadgeHSpacing.setText("0.05");
+        panePDFBadgeVSpacing.setText("0.05");
         panePDFOutputFile.addAction(0, e -> {
             String path = GUI.browseForFile("Specify Output PDF File");
             if(path != null) {
@@ -301,20 +305,22 @@ public class MainWindow extends JFrame {
             savePDF(panePDFOutputFile.getText());
         });
         
-        paneOutputPDF.setToolTipText("Output a PDF document of the badges. " +
-                "Multiple badges will be placed on a page if they fit");
-        paneOutputPDF.add(Box.createRigidArea(new Dimension(5, 5)));
-        paneOutputPDF.add(panePDFPageSize);
-        paneOutputPDF.add(Box.createRigidArea(new Dimension(5, 5)));
-        paneOutputPDF.add(panePDFPageOrientation);
-        paneOutputPDF.add(Box.createRigidArea(new Dimension(5, 5)));
-        paneOutputPDF.add(panePDFPageMargin);
-        paneOutputPDF.add(Box.createRigidArea(new Dimension(5, 5)));
-        paneOutputPDF.add(panePDFBadgeSpacing);
-        paneOutputPDF.add(Box.createRigidArea(new Dimension(5, 5)));
-        paneOutputPDF.add(panePDFOutputFile);
+        paneOutput.add(Box.createRigidArea(new Dimension(5, 5)));
+        paneOutput.add(panePDFPageSize);
+        paneOutput.add(Box.createRigidArea(new Dimension(5, 5)));
+        paneOutput.add(panePDFPageOrientation);
+        paneOutput.add(Box.createRigidArea(new Dimension(5, 5)));
+        paneOutput.add(panePDFPageHMargin);
+        paneOutput.add(Box.createRigidArea(new Dimension(5, 5)));
+        paneOutput.add(panePDFPageVMargin);
+        paneOutput.add(Box.createRigidArea(new Dimension(5, 5)));
+        paneOutput.add(panePDFBadgeHSpacing);
+        paneOutput.add(Box.createRigidArea(new Dimension(5, 5)));
+        paneOutput.add(panePDFBadgeVSpacing);
+        paneOutput.add(Box.createRigidArea(new Dimension(5, 5)));
+        paneOutput.add(panePDFOutputFile);
         
-        paneOutput.add(paneOutputPDF);
+        //paneOutput.add(paneOutputPDF);
         paneOutput.add(Box.createRigidArea(new Dimension(5, 10)));
         JSeparator separator = new JSeparator(SwingConstants.HORIZONTAL);
         // separator.setPreferredSize(new Dimension(Short.MAX_VALUE, 1));
@@ -494,14 +500,17 @@ public class MainWindow extends JFrame {
             }
             final PDRectangle pageSize = ps;
             final boolean landscape = panePDFPageOrientation.getSelectedIndex() == 1;
-            final float margin = Float.parseFloat(panePDFPageMargin.getText());
-            final float spacing = Float.parseFloat(panePDFBadgeSpacing.getText());
+            final float hMargin = Float.parseFloat(panePDFPageHMargin.getText());
+            final float vMargin = Float.parseFloat(panePDFPageVMargin.getText());
+            final float hSpacing = Float.parseFloat(panePDFBadgeHSpacing.getText());
+            final float vSpacing = Float.parseFloat(panePDFBadgeVSpacing.getText());
 
             applySize();
             (new Thread(() -> {
                 IO.generatePDF(currentRenderer,
                                ProgressDialog.create("Saving PDF"), 
-                               pageSize, margin, spacing, units, 
+                               pageSize, hMargin, vMargin,
+                               hSpacing, vSpacing, units, 
                                landscape, true, badges,
                                new File(path));
             })).start();
