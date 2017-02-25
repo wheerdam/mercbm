@@ -49,6 +49,9 @@ public class Main {
     private static float height = Badge.DEFAULT_PROPORTION *
                                         Badge.DEFAULT_WIDTH;
     private static int resolution = Badge.DEFAULT_RESOLUTION;
+    private static String cOutName;
+    private static String cOutFile;
+    private static String[] cOutArgs;
     
     /**
      * @param args the command line arguments
@@ -73,6 +76,9 @@ public class Main {
                             break;
                         case "--help":
                             Log.d(0, usage());
+                            System.exit(0);
+                        case "--custom-classes":
+                            Log.d(0, customClasses());
                             System.exit(0);
                         case "--debug":
                             check(args, i , 1);
@@ -145,6 +151,18 @@ public class Main {
                             check(args, i, 2);
                             loader.loadClass(args[++i], args[++i]);
                             break;
+                        case "--custom":
+                            check(args, i, 2);
+                            cOutName = args[++i];
+                            cOutFile = args[++i];
+                            cOutArgs = new String[args.length-(++i)];
+                            if(cOutArgs.length > 0) {
+                                System.arraycopy(args, i, 
+                                                 cOutArgs, 0, cOutArgs.length);
+                            }                            
+                            // terminate parsing with this
+                            i = args.length - 1;
+                            break;
                         default:
                             Log.err("Unknown option: " + args[i]);
                             Log.err("Run with '--help' for command line options");
@@ -166,7 +184,7 @@ public class Main {
         }
                
         if(!gui && file != null) {
-            if(pdf == null && pngOutputDir == null) {
+            if(pdf == null && pngOutputDir == null && cOutName == null) {
                 Log.err("No output was specified");
                 System.exit(1);
             }
@@ -216,6 +234,10 @@ public class Main {
             }
             if(jpgOutputDir != null) {
                 IO.saveJPG(r, null, badges, jpgOutputDir);
+            }
+            if(cOutName != null) {
+                CustomOutput out = loadCustomOutput(cOutName, cOutFile);
+                out.save(r, null, badges, cOutArgs);
             }
         } else {
             // gui init
@@ -268,7 +290,24 @@ public class Main {
                                e);
             System.exit(1);
         }
-    }        
+    }
+    
+    public static CustomOutput loadCustomOutput(String className,
+                                                String classFile) {
+        try {
+            Class c = loader.loadClass(className, classFile);
+            if(c == null) {
+                System.exit(1);
+            }
+            CustomOutput out = (CustomOutput) c.newInstance();
+            return out;
+        } catch(InstantiationException | IllegalAccessException e) {
+            Log.err("Failed to instantiate custom renderer: " +
+                               e);
+            System.exit(1);
+        }
+        return null;
+    }
     
     public static void printRendererProperties(Renderer r) {
         Log.d(0, "Renderer: " + r.getDescription());
@@ -337,21 +376,20 @@ public class Main {
                 + "\n"
                 + " --certificate-renderer  Mercury certificate of participation\n"
                 + " --scriptable SCRIPT     the scriptable renderer\n"
-                + " --custom-renderer CLASSNAME CLASSFILE\n"
-                + "                         dynamically load an external renderer\n"
                 + "\n"
                 + "OPTIONS:\n"
                 + "  -l                     list active renderer properties and quit\n"
                 + "  -s KEY VALUE           set active renderer property\n"
                 + "  -f FONTNAME            set font to use for text\n"
                 + "  -w VALUE               badge width (default " +
-                                            String.format("%.2f", Badge.DEFAULT_WIDTH) + ")\n"
+                                            String.format("%.3f", Badge.DEFAULT_WIDTH) + ")\n"
                 + "  -h VALUE               badge height (default " +
-                                            String.format("%.2f", Badge.DEFAULT_PROPORTION *
+                                            String.format("%.3f", Badge.DEFAULT_PROPORTION *
                                                                   Badge.DEFAULT_WIDTH) + ")\n"
                 + "  -r RESOLUTION          output image resolution (dots per units, default " +
                                             Badge.DEFAULT_RESOLUTION + ")\n"
                 + "  -p                     use lossless image format when applicable\n"
+                + "  --custom-classes       display information on custom classes\n"
                 + "\n"
                 + "OUTPUT formats (must specify at least one if '-i' is used):\n" 
                 + "  --png DIRECTORY        output badges as PNG files\n"
@@ -360,7 +398,25 @@ public class Main {
                 + "                         generate a PDF document with the specified format\n"
                 + "                           valid sizes: A0, ... A6, LETTER, LEGAL\n"
                 + "                           orientations: PORTRAIT, LANDSCAPE\n"
-                + "                           units: MM, INCHES\n";
+                + "                           units: MM, INCHES\n"
+
+                + "";
+        return help;
+    }
+    
+    public static String customClasses() {
+        String help;
+        help  =   "mercbm supports custom renderers and output engines that can be loaded\n"
+                + "dynamically using the following options:\n"
+                + "\n"
+                + " --custom-renderer CLASSNAME CLASSFILE\n"
+                + "                         dynamically load an external renderer\n"          
+                + " --custom CLASSNAME CLASSFILE ARGS...\n"
+                + "                         load a custom output class, all command line arguments\n"
+                + "                           after this option will be passed on to the class\n"
+                + " -c CLASSNAME CLASSFILE  load a class that the custom renderer / output engine\n"
+                + "                           depends on\n"
+                + "";
         return help;
     }
     
