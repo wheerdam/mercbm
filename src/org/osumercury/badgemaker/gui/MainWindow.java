@@ -542,9 +542,14 @@ public class MainWindow extends JFrame {
         if(file != null) {
             Progress p = ProgressDialog.create("Importing " + file);
             (new Thread(() -> {
-                badges.addAll(IO.readFromCSV(p, file, 
-                                            width, height, (int) dpi));
-                populateInputTable();
+                List<Badge> newBadges = IO.readFromCSV(p, file, 
+                                     width, height, (int) dpi);
+                if(newBadges != null) {
+                    badges.addAll(newBadges);
+                    populateInputTable();
+                } else {
+                    Log.d(0, "No valid entries found");
+                }
             })).start();
         }
     }

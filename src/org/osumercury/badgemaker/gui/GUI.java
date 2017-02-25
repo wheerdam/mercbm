@@ -36,16 +36,19 @@ public class GUI {
             mainWindow.init();
             if(file != null) {
                 Progress p = ProgressDialog.create("Importing " + file);
-                List<Badge> badges = new ArrayList<>();
                 (new Thread(() -> {
                     Log.d(0, "Importing...");
-                    badges.addAll(IO.readFromCSV(p, file,
-                                  Badge.DEFAULT_WIDTH,
-                                  Badge.DEFAULT_WIDTH*Badge.DEFAULT_PROPORTION,
-                                  Badge.DEFAULT_RESOLUTION));
-                    mainWindow.getBadgeList().addAll(badges);
-                    mainWindow.populateInputTable();
-                    Log.d(0, "Import Completed");
+                    List<Badge> badges =  IO.readFromCSV(p, file,
+                            Badge.DEFAULT_WIDTH,
+                            Badge.DEFAULT_WIDTH*Badge.DEFAULT_PROPORTION,
+                            Badge.DEFAULT_RESOLUTION);
+                    if(badges != null) {
+                        mainWindow.getBadgeList().addAll(badges);
+                        mainWindow.populateInputTable();
+                        Log.d(0, "Import Completed");
+                    } else {
+                        Log.d(0, "No valid entries found");
+                    }
                 })).start();
             }
             mainWindow.setVisible(true);
