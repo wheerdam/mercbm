@@ -22,6 +22,7 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
@@ -296,7 +297,8 @@ public class MainWindow extends JFrame {
         panePDFBadgeHSpacing.setText("0.05");
         panePDFBadgeVSpacing.setText("0.05");
         panePDFOutputFile.addAction(0, e -> {
-            String path = GUI.browseForFile("Specify Output PDF File");
+            String path = GUI.browseForFile("Specify Output PDF File",
+                    new FileNameExtensionFilter("PDF files", "pdf"));
             if(path != null) {
                 panePDFOutputFile.setText(path);
             }
@@ -538,7 +540,8 @@ public class MainWindow extends JFrame {
     }
     
     private void importCSV() {
-        String file = GUI.browseForFile("Select File to Import");       
+        String file = GUI.browseForFile("Select File to Import",
+                new FileNameExtensionFilter("CSV files", "csv"));       
         if(file != null) {
             Progress p = ProgressDialog.create("Importing " + file);
             (new Thread(() -> {
@@ -555,7 +558,8 @@ public class MainWindow extends JFrame {
     }
     
     private void exportCSV() {
-        String file = GUI.browseForFile("Select File to Export Data");       
+        String file = GUI.browseForFile("Select File to Export Data",
+                new FileNameExtensionFilter("CSV files", "csv"));       
         if(file != null) {
             Progress p = ProgressDialog.create("Exporting " + file);
             (new Thread(() -> {
@@ -721,7 +725,8 @@ public class MainWindow extends JFrame {
     }
     
     private void saveRendererSettings() {
-        String file = GUI.browseForFile("Save Settings");
+        String file = GUI.browseForFile("Save Settings",
+                new FileNameExtensionFilter("mercbm format settings file (.mbformat)", "mbformat"));
         if(file != null) {
             float[] sizes = new float[5];
             sizes[0] = width;
@@ -734,7 +739,8 @@ public class MainWindow extends JFrame {
     }
     
     private void loadRendererSettings() {
-        String file = GUI.browseForFile("Load Settings");
+        String file = GUI.browseForFile("Load Settings",
+                new FileNameExtensionFilter("mercbm format settings file (.mbformat)", "mbformat"));
         if(file != null) {
             float[] sizes = IO.loadRendererSettings(file, r0, r1, Main.getRenderer());
             if(sizes != null) {

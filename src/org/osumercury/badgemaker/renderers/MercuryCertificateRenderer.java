@@ -22,6 +22,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JPanel;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import org.osumercury.badgemaker.*;
 import org.osumercury.badgemaker.gui.GUI;
 import org.osumercury.badgemaker.gui.MainWindow;
@@ -640,7 +641,9 @@ public class MercuryCertificateRenderer extends Renderer {
         panePathToLogo.setText(pathToLogo);
         panePathToLogo.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
         panePathToLogo.addAction(0, e ->  {
-            String path = GUI.browseForFile("Select Image File");
+            String path = GUI.browseForFile("Select Image File",
+                    new FileNameExtensionFilter("Supported image formats",
+                                                "png", "jpg", "jpeg"));
             if(path != null) {
                 panePathToLogo.setText(path);
                 applySettings();
@@ -654,7 +657,9 @@ public class MercuryCertificateRenderer extends Renderer {
         panePathToBackground.setText(pathToBackground);
         panePathToBackground.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
         panePathToBackground.addAction(0, e ->  {
-            String path = GUI.browseForFile("Select Image File");
+            String path = GUI.browseForFile("Select Image File",
+                    new FileNameExtensionFilter("Supported image formats",
+                                                "png", "jpg", "jpeg"));
             if(path != null) {
                 panePathToBackground.setText(path);
                 applySettings();

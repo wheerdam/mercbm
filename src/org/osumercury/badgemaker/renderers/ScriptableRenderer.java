@@ -33,6 +33,7 @@ import java.util.regex.Pattern;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import org.osumercury.badgemaker.Badge;
 import org.osumercury.badgemaker.ImageTools;
 import org.osumercury.badgemaker.Log;
@@ -317,7 +318,8 @@ public class ScriptableRenderer extends Renderer {
         paneScriptFile = new TextInputPane("Script: ", 120, "Browse", "Reload");
         paneScriptFile.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
         paneScriptFile.addAction(0, e -> {
-            String path = GUI.browseForFile("Select Script File");
+            String path = GUI.browseForFile("Select Script File",
+                    new FileNameExtensionFilter("mercbm custom format script file", "mbscript"));
             if(path != null) {
                 paneScriptFile.setText(path);
                 setProperty("script-file", path);

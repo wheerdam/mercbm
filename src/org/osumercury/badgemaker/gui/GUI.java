@@ -16,10 +16,10 @@
 package org.osumercury.badgemaker.gui;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
 import javax.swing.SwingUtilities;
+import javax.swing.filechooser.FileFilter;
 import org.osumercury.badgemaker.Badge;
 import org.osumercury.badgemaker.IO;
 import org.osumercury.badgemaker.Log;
@@ -55,10 +55,16 @@ public class GUI {
         });
     }
     
-    public static String browseForFile(String title) {
+    public static String browseForFile(String title, FileFilter...filters) {
         JFileChooser fc = new JFileChooser();
         fc.setCurrentDirectory(new File("."));
         fc.setDialogTitle(title);
+        for(FileFilter filter : filters) {
+            fc.addChoosableFileFilter(filter);
+        }
+        if(filters.length > 0) {
+            fc.setFileFilter(filters[0]);
+        }
         if(fc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
             return fc.getSelectedFile().getAbsolutePath();
         }

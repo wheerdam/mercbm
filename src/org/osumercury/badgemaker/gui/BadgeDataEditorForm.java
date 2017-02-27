@@ -28,6 +28,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import org.osumercury.badgemaker.*;
 
 /**
@@ -277,7 +278,9 @@ public class BadgeDataEditorForm extends JDialog {
     }
     
     private void importBackgroundFile() {
-        String file = GUI.browseForFile("Select Image File");
+        String file = GUI.browseForFile("Select Image File",
+                new FileNameExtensionFilter("Supported image formats",
+                                            "png", "jpg", "jpeg"));
         if(file == null) {
             return;
         }

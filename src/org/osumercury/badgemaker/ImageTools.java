@@ -92,13 +92,16 @@ public class ImageTools {
                     c = new Color((int)Long.parseLong(hex, 16), true);
                     break;
                 default:
+                    Log.err("Unable to parse color code: \'" + hex + "\'\n" +
+                            "Defaulting to black");
                     c = Color.BLACK;
                     break;
             }
             return c;
         } catch(Exception e) {
             // just return black if we failed to parse
-            System.err.println(e);
+            Log.err("Unable to parse color code: \'" + hex + "\'\n" +
+                    "Defaulting to black");
             return Color.BLACK;
         }
     }

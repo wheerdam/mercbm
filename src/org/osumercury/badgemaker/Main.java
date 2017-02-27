@@ -420,7 +420,7 @@ public class Main {
         return help;
     }
     
-    public static String version() { return "0.4"; }        
+    public static String version() { return "0.4b"; }        
     public static String copyright() { 
         return "Copyright (c)2017 Carl D. Latino and Wira D. Mulia"; 
     }    
