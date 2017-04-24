@@ -422,7 +422,7 @@ public class Main {
         return help;
     }
     
-    public static String version() { return "0.5"; }        
+    public static String version() { return "0.6"; }        
     public static String copyright() { 
         return "Copyright (c)2017 Carl D. Latino and Wira D. Mulia"; 
     }    
